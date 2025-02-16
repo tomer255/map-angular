@@ -6,4 +6,5 @@ import { ArcgisMapCustomEvent } from '@arcgis/map-components';
 })
 export class MapService {
   map = signal<ArcgisMapCustomEvent<unknown> | null>(null);
+  loaded = signal<boolean>(false);
 }

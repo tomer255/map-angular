@@ -1,4 +1,10 @@
-import { Directive, effect, ElementRef, inject, input } from '@angular/core';
+import {
+  AfterViewInit,
+  Directive,
+  ElementRef,
+  inject,
+  input,
+} from '@angular/core';
 import { MapService } from '../map/map.service';
 
 type Position =
@@ -16,16 +22,15 @@ type Position =
   standalone: true,
   selector: '[libMapWidget]',
 })
-export class MapWidgetDirective {
+export class MapWidgetDirective implements AfterViewInit {
   position = input.required<Position>();
   mapService = inject(MapService);
-  constructor(el: ElementRef) {
-    effect(() => {
-      console.log(this.mapService.map());
-    });
+  el = inject(ElementRef);
+
+  ngAfterViewInit(): void {
     const map = this.mapService.map();
     if (!map) return;
-    map.target.view.ui.add(el.nativeElement, {
+    map.target.view.ui.add(this.el.nativeElement, {
       position: this.position(),
     });
   }

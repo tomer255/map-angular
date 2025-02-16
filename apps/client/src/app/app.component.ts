@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { MapComponent } from '@map-angular/map-ui';
+import { AppMapComponent } from './map/map.component';
 
 @Component({
   standalone: true,
-  imports: [RouterModule, MapComponent],
+  imports: [RouterModule, AppMapComponent, AppMapComponent],
   selector: 'app-root',
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
