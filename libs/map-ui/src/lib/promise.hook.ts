@@ -1,8 +1,8 @@
-export const promiseHook = () => {
-  let resolve: (value?: unknown) => void = () => {};
+export const promiseHook = <T>() => {
+  let resolve: (value: T | PromiseLike<T>) => void = () => {};
   let reject: (value?: unknown) => void = () => {};
 
-  const promise = new Promise((res, rej) => {
+  const promise = new Promise<T>((res, rej) => {
     resolve = res;
     reject = rej;
   });

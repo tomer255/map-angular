@@ -28,10 +28,14 @@ export class MapWidgetDirective implements AfterViewInit {
   el = inject(ElementRef);
 
   ngAfterViewInit(): void {
-    const map = this.mapService.map();
-    if (!map) return;
+    this.initWidget();
+  }
+
+  async initWidget() {
+    const map = await this.mapService.mapReady.promise;
     map.target.view.ui.add(this.el.nativeElement, {
       position: this.position(),
     });
+    map.target.view.layerViews;
   }
 }

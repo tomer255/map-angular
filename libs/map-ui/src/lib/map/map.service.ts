@@ -1,10 +1,11 @@
 import { Injectable, signal } from '@angular/core';
 import { ArcgisMapCustomEvent } from '@arcgis/map-components';
+import { promiseHook } from '../promise.hook';
 
 @Injectable({
   providedIn: 'any',
 })
 export class MapService {
-  map = signal<ArcgisMapCustomEvent<unknown> | null>(null);
   loaded = signal<boolean>(false);
+  mapReady = promiseHook<ArcgisMapCustomEvent<unknown>>();
 }

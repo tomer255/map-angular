@@ -17,12 +17,13 @@ import Point from '@arcgis/core/geometry/Point.js';
 export class AppMapComponent {
   mapService = inject(MapService);
 
-  goTo() {
+  async goTo() {
+    const map = await this.mapService.mapReady.promise;
     const testPint = new Point({
       x: 34.890398187602784,
       y: 31.774515514156032,
     });
-    this.mapService.map()?.target.view.goTo(testPint, {
+    map.target.view.goTo(testPint, {
       animationMode: 'always',
     });
   }
