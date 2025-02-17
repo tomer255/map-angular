@@ -11,16 +11,19 @@ import '@arcgis/map-components/dist/components/arcgis-zoom';
 import { ArcgisMapCustomEvent } from '@arcgis/map-components';
 import { MapService } from './map.service';
 import Point from '@arcgis/core/geometry/Point.js';
+import Polygon from '@arcgis/core/geometry/Polygon';
 import Graphic from '@arcgis/core/Graphic';
 import SimpleMarkerSymbol from '@arcgis/core/symbols/SimpleMarkerSymbol.js';
 import PictureMarkerSymbol from '@arcgis/core/symbols/PictureMarkerSymbol.js';
-import CIMSymbol from '@arcgis/core/symbols/CIMSymbol.js';
+import { ellipse, Units } from '@turf/turf';
 
 import GraphicsLayer from '@arcgis/core/layers/GraphicsLayer.js';
 import { promiseHook } from '../promise.hook';
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer.js';
 import UniqueValueRenderer from '@arcgis/core/renderers/UniqueValueRenderer.js';
-import TextSymbol from '@arcgis/core/symbols/TextSymbol.js';
+// import TextSymbol from '@arcgis/core/symbols/TextSymbol.js';
+import LabelClass from '@arcgis/core/layers/support/LabelClass';
+import SimpleFillSymbol from '@arcgis/core/symbols/SimpleFillSymbol.js';
 
 @Component({
   selector: 'lib-map',
@@ -44,6 +47,7 @@ export class LibMapComponent implements AfterContentInit {
     this.mapService.loaded.set(true);
     this.mapService.mapReady.resolve(map);
     this.testFeatureLayer(map.target);
+    this.testPoly(map.target);
   }
 
   testGraphicsLayer(map: HTMLArcgisMapElement) {
@@ -95,6 +99,11 @@ export class LibMapComponent implements AfterContentInit {
           alias: 'status',
           type: 'string',
         },
+        {
+          name: 'name',
+          alias: 'name',
+          type: 'string',
+        },
       ],
       objectIdField: 'ObjectId',
       geometryType: 'point',
@@ -111,6 +120,8 @@ export class LibMapComponent implements AfterContentInit {
 
     const symbolRed = new PictureMarkerSymbol({
       url: 'symbols/inferno-svgrepo-com.svg',
+      width: 32,
+      height: 32,
     });
 
     const symbolBlue = new SimpleMarkerSymbol({
@@ -121,73 +132,73 @@ export class LibMapComponent implements AfterContentInit {
       },
     });
 
-    const cimSymbol = new CIMSymbol({
-      data: {
-        type: 'CIMSymbolReference',
-        symbol: {
-          type: 'CIMPointSymbol',
-          symbolLayers: [
-            {
-              type: 'CIMPictureMarker',
-              url: 'symbols/inferno-svgrepo-com.svg',
-              enable: true,
-              size: 32,
-            },
-            {
-              type: 'CIMVectorMarker',
-              enable: true,
-              size: 10,
-              colorLocked: true,
-              anchorPointUnits: 'Relative',
-              frame: {
-                xmin: -5,
-                ymin: -5,
-                xmax: 5,
-                ymax: 5,
-              },
-              offsetY: -20,
-              markerGraphics: [
-                {
-                  type: 'CIMMarkerGraphic',
-                  geometry: {
-                    x: 0,
-                    y: 0,
-                  },
-                  symbol: {
-                    type: 'CIMTextSymbol',
-                    fontFamilyName: 'Arial',
-                    fontStyleName: 'Bold',
-                    height: 10,
-                    horizontalAlignment: 'Center',
-                    offsetX: 0,
-                    offsetY: 0,
-                    symbol: {
-                      type: 'CIMPolygonSymbol',
-                      symbolLayers: [
-                        {
-                          type: 'CIMSolidFill',
-                          enable: true,
-                          color: [41, 214, 41, 255],
-                        },
-                      ],
-                    },
-                    verticalAlignment: 'Center',
-                  },
-                  textString: 'Tomer',
-                },
-              ],
-              scaleSymbolsProportionally: true,
-              respectFrame: true,
-            },
-          ],
-        },
-      },
-    });
+    // const cimSymbol = new CIMSymbol({
+    //   data: {
+    //     type: 'CIMSymbolReference',
+    //     symbol: {
+    //       type: 'CIMPointSymbol',
+    //       symbolLayers: [
+    //         {
+    //           type: 'CIMPictureMarker',
+    //           url: 'symbols/inferno-svgrepo-com.svg',
+    //           enable: true,
+    //           size: 32,
+    //         },
+    //         {
+    //           type: 'CIMVectorMarker',
+    //           enable: true,
+    //           size: 10,
+    //           colorLocked: true,
+    //           anchorPointUnits: 'Relative',
+    //           frame: {
+    //             xmin: -5,
+    //             ymin: -5,
+    //             xmax: 5,
+    //             ymax: 5,
+    //           },
+    //           offsetY: -20,
+    //           markerGraphics: [
+    //             {
+    //               type: 'CIMMarkerGraphic',
+    //               geometry: {
+    //                 x: 0,
+    //                 y: 0,
+    //               },
+    //               symbol: {
+    //                 type: 'CIMTextSymbol',
+    //                 fontFamilyName: 'Arial',
+    //                 fontStyleName: 'Bold',
+    //                 height: 10,
+    //                 horizontalAlignment: 'Center',
+    //                 offsetX: 0,
+    //                 offsetY: 0,
+    //                 symbol: {
+    //                   type: 'CIMPolygonSymbol',
+    //                   symbolLayers: [
+    //                     {
+    //                       type: 'CIMSolidFill',
+    //                       enable: true,
+    //                       color: [41, 214, 41, 255],
+    //                     },
+    //                   ],
+    //                 },
+    //                 verticalAlignment: 'Center',
+    //               },
+    //               textString: '{name}',
+    //             },
+    //           ],
+    //           scaleSymbolsProportionally: true,
+    //           respectFrame: true,
+    //         },
+    //       ],
+    //     },
+    //   },
+    // });
 
     const uniqueValueInfos = [
       {
         label: 'Red Type Symbol',
-        symbol: cimSymbol,
+        symbol: symbolRed,
         value: '1',
       },
       {
@@ -214,39 +225,93 @@ export class LibMapComponent implements AfterContentInit {
 
     const graphicRed1 = new Graphic({
       attributes: {
-        ObjectId: 'place.id',
+        ObjectId: '1',
         status: '1', // RED
         address: 'place.address',
+        name: 'name 1',
       },
       geometry: testPointRed1,
     });
     const graphicRed2 = new Graphic({
       attributes: {
-        ObjectId: 'place.id',
+        ObjectId: '2',
         status: '1', // RED
         address: 'place.address',
+        name: 'name 2',
       },
       geometry: testPointRed2,
     });
     const graphicBlue1 = new Graphic({
       attributes: {
-        ObjectId: 'place.id',
+        ObjectId: '3',
         status: '2', // BLUE
         address: 'place.address',
+        name: 'name 3',
       },
       geometry: testPointBlue1,
     });
     const graphicBlue2 = new Graphic({
       attributes: {
-        ObjectId: 'place.id',
+        ObjectId: '4',
         status: '2', // BLUE
         address: 'place.address',
+        name: 'name 4',
       },
       geometry: testPointBlue2,
     });
 
+    const labelClass = new LabelClass({
+      labelExpressionInfo: {
+        expression: '$feature.name',
+      },
+      labelPlacement: 'below-center',
+      minScale: 1000000,
+      symbol: {
+        type: 'text',
+        color: 'green',
+        font: {
+          size: 12,
+        },
+      },
+    });
+    layer.labelsVisible = true;
+    layer.labelingInfo = [labelClass];
     layer.applyEdits({
       addFeatures: [graphicRed1, graphicRed2, graphicBlue1, graphicBlue2],
     });
+  }
+
+  testPoly(map: HTMLArcgisMapElement) {
+    const ellipseT = ellipse([34.89, 31.674], 2, 4, {
+      units: 'kilometers' as Units,
+      angle: 45,
+    });
+
+    const testPolygon1 = new Polygon({
+      hasM: false,
+      hasZ: false,
+      spatialReference: { wkid: 4326 },
+      rings: ellipseT.geometry.coordinates,
+    });
+
+    console.log(ellipseT.geometry.coordinates);
+
+    const graphicPolygon = new Graphic({
+      attributes: {
+        ObjectId: '5',
+        name: 'elli 1',
+      },
+      geometry: testPolygon1,
+      symbol: new SimpleFillSymbol({
+        color: [255, 0, 0, 0.1],
+        outline: { color: [255, 0, 0], width: '1px' },
+      }),
+    });
+
+    const layer = new GraphicsLayer({
+      graphics: [graphicPolygon],
+    });
+
+    map.addLayer(layer);
   }
 }
