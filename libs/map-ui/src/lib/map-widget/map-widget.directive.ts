@@ -1,13 +1,15 @@
 import {
-  AfterViewInit,
   Directive,
   ElementRef,
+  Host,
   inject,
   input,
+  OnDestroy,
+  OnInit,
 } from '@angular/core';
-import { MapService } from '../map/map.service';
+import { LibMapComponent } from '../map/map.component';
 
-type Position =
+type UIAddPosition =
   | 'bottom-leading'
   | 'bottom-left'
   | 'bottom-right'
@@ -22,20 +24,24 @@ type Position =
   standalone: true,
   selector: '[libMapWidget]',
 })
-export class MapWidgetDirective implements AfterViewInit {
-  position = input.required<Position>();
-  mapService = inject(MapService);
-  el = inject(ElementRef);
+export class MapWidgetDirective implements OnInit, OnDestroy {
+  position = input.required<UIAddPosition>();
+  parent: LibMapComponent;
+  elementRef = inject(ElementRef);
 
-  ngAfterViewInit(): void {
-    this.initWidget();
+  constructor(@Host() parent: LibMapComponent) {
+    this.parent = parent;
   }
 
-  async initWidget() {
-    const map = await this.mapService.mapReady.promise;
-    map.target.view.ui.add(this.el.nativeElement, {
+  async ngOnInit(): Promise<void> {
+    const map = await this.parent.mapReady.promise;
+    map.view.ui.add(this.elementRef.nativeElement, {
       position: this.position(),
     });
-    map.target.view.layerViews;
+  }
+
+  async ngOnDestroy(): Promise<void> {
+    const map = await this.parent.mapReady.promise;
+    map.view.ui.remove(this.elementRef.nativeElement);
   }
 }

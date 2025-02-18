@@ -1,3 +1,24 @@
 <lib-map>
   <button (click)="goTo()" libMapWidget position="top-right">test2</button>
+  <graphics-layer>
+    <ellipse
+      [xCenter]="34.89"
+      [yCenter]="31.674"
+      [angle]="48"
+      [xSemiAxis]="4"
+      [ySemiAxis]="3"
+    />
+    <ellipse
+      [xCenter]="34.79"
+      [yCenter]="31.774"
+      [angle]="180"
+      [xSemiAxis]="2"
+      [ySemiAxis]="3"
+    />
+  </graphics-layer>
+  <feature-layer>
+    @for (event of events; track event.id) {
+    <map-event [event]="event" />
+    }
+  </feature-layer>
 </lib-map>
