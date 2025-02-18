@@ -15,9 +15,9 @@ import {
   blueMarkerSymbol,
   greenMarkerSymbol,
   labelSymbol,
-  symbolFire,
+  fireSymbol,
 } from '../utilities/symbols';
-
+import FeatureReductionCluster from '@arcgis/core/layers/support/FeatureReductionCluster.js';
 @Component({
   selector: 'feature-layer',
   standalone: true,
@@ -26,11 +26,16 @@ import {
 })
 export class FeatureLayerComponent implements OnInit, OnDestroy {
   layer = new FeatureLayer({
-    title: 'event-layer',
     spatialReference: { wkid: 4326 },
+    title: 'feature-layer',
     source: [],
-    geometryType: 'point',
+    fields: [
+      new Field({ name: 'id', type: 'oid' }),
+      new Field({ name: 'status', type: 'string' }),
+      new Field({ name: 'name', type: 'string' }),
+    ],
     objectIdField: 'id',
+    geometryType: 'point',
   });
   parent: LibMapComponent;
   elementRef = inject(ElementRef);
@@ -42,12 +47,21 @@ export class FeatureLayerComponent implements OnInit, OnDestroy {
   async ngOnInit(): Promise<void> {
     const map = await this.parent.mapReady.promise;
     this.layer.objectIdField = 'id';
-
-    this.layer.fields = [
-      new Field({ name: 'id', type: 'oid' }),
-      new Field({ name: 'status', type: 'string' }),
-      new Field({ name: 'name', type: 'string' }),
-    ];
+    this.layer.featureReduction = new FeatureReductionCluster({
+      type: 'cluster',
+      clusterRadius: 100,
+      symbol: greenMarkerSymbol,
+      labelingInfo: [
+        {
+          labelExpressionInfo: {
+            expression: '$feature.cluster_count',
+          },
+          deconflictionStrategy: 'none',
+          labelPlacement: 'center-center',
+          symbol: labelSymbol,
+        },
+      ],
+    });
     this.layer.labelingInfo = [
       new LabelClass({
         labelExpressionInfo: {
@@ -64,7 +78,7 @@ export class FeatureLayerComponent implements OnInit, OnDestroy {
       uniqueValueInfos: [
         {
           label: 'Red Type Symbol',
-          symbol: symbolFire,
+          symbol: fireSymbol,
           value: '1',
         },
         {
@@ -74,9 +88,9 @@ export class FeatureLayerComponent implements OnInit, OnDestroy {
         },
       ],
     });
-
     map.addLayer(this.layer);
   }
+
   async ngOnDestroy(): Promise<void> {
     const map = await this.parent.mapReady.promise;
     // TODO : remove layer

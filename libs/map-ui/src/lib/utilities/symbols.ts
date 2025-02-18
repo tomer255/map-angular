@@ -2,7 +2,7 @@ import PictureMarkerSymbol from '@arcgis/core/symbols/PictureMarkerSymbol';
 import SimpleMarkerSymbol from '@arcgis/core/symbols/SimpleMarkerSymbol';
 import TextSymbol from '@arcgis/core/symbols/TextSymbol.js';
 
-export const symbolFire = new PictureMarkerSymbol({
+export const fireSymbol = new PictureMarkerSymbol({
   url: 'symbols/inferno.svg',
   width: 32,
   height: 32,
