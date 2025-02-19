@@ -1,12 +1,12 @@
 <lib-map>
   <button (click)="goTo()" libMapWidget position="top-right">test2</button>
   <ellipses-layer>
-    @for (ellipse of ellipses; track ellipse.id) {
+    @for (ellipse of ellipses(); track ellipse.id) {
     <ellipse [ellipse]="ellipse" />
     }
   </ellipses-layer>
   <events-layer>
-    @for (event of events; track event.id) {
+    @for (event of events(); track event.id) {
     <event [event]="event" />
     }
   </events-layer>

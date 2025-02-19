@@ -1,4 +1,4 @@
-import { Component, viewChild } from '@angular/core';
+import { Component, signal, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import '@arcgis/map-components/dist/components/arcgis-map';
 import '@arcgis/map-components/dist/components/arcgis-zoom';
@@ -16,6 +16,12 @@ import Point from '@arcgis/core/geometry/Point';
 import Extent from '@arcgis/core/geometry/Extent.js';
 import { getEllipses } from '../generator/ellipses';
 import { getEvents } from '../generator/events';
+
+declare global {
+  interface Window {
+    test: any;
+  }
+}
 
 @Component({
   selector: 'app-map',
@@ -50,16 +56,24 @@ export class AppMapComponent {
     });
   }
 
-  events: Event[] = [];
+  events = signal<Event[]>([]);
 
-  ellipses: Ellipse[] = [];
+  ellipses = signal<Ellipse[]>([]);
 
   constructor() {
-    (window as any).genEllipses = (amount: number) => {
-      return (this.ellipses = getEllipses(amount));
-    };
-    (window as any).genEvents = (amount: number) => {
-      return (this.events = getEvents(amount));
+    window.test = {
+      events: {
+        generat: (amount: number) => {
+          return this.events.set(getEvents(amount));
+        },
+        clear: () => this.events.set([]),
+      },
+      ellipses: {
+        generat: (amount: number) => {
+          return this.ellipses.set(getEllipses(amount));
+        },
+        clear: () => this.ellipses.set([]),
+      },
     };
   }
 }
