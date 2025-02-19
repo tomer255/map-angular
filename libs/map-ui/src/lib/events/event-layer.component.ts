@@ -12,7 +12,7 @@ import UniqueValueRenderer from '@arcgis/core/renderers/UniqueValueRenderer';
 import LabelClass from '@arcgis/core/layers/support/LabelClass';
 import Field from '@arcgis/core/layers/support/Field.js';
 import {
-  blueMarkerSymbol,
+  chemicalSymbol,
   greenMarkerSymbol,
   labelSymbol,
   fireSymbol,
@@ -37,20 +37,20 @@ export class EventsLayerComponent extends FeatureLayerComponent {
     ],
     objectIdField: 'id',
     geometryType: 'point',
-    featureReduction: new FeatureReductionCluster({
-      clusterRadius: 100,
-      symbol: greenMarkerSymbol,
-      labelingInfo: [
-        {
-          labelExpressionInfo: {
-            expression: '$feature.cluster_count',
-          },
-          deconflictionStrategy: 'none',
-          labelPlacement: 'center-center',
-          symbol: labelSymbol,
-        },
-      ],
-    }),
+    // featureReduction: new FeatureReductionCluster({
+    //   clusterRadius: 100,
+    //   symbol: greenMarkerSymbol,
+    //   labelingInfo: [
+    //     {
+    //       labelExpressionInfo: {
+    //         expression: '$feature.cluster_count',
+    //       },
+    //       deconflictionStrategy: 'none',
+    //       labelPlacement: 'center-center',
+    //       symbol: labelSymbol,
+    //     },
+    //   ],
+    // }),
     labelingInfo: [
       new LabelClass({
         labelExpressionInfo: {
@@ -72,7 +72,7 @@ export class EventsLayerComponent extends FeatureLayerComponent {
         },
         {
           label: 'Blue Type Symbol',
-          symbol: blueMarkerSymbol,
+          symbol: chemicalSymbol,
           value: '2',
         },
       ],

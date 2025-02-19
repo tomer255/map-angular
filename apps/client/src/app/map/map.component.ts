@@ -14,7 +14,8 @@ import {
 } from '@map-angular/map-ui';
 import Point from '@arcgis/core/geometry/Point';
 import Extent from '@arcgis/core/geometry/Extent.js';
-import { center } from '@turf/turf';
+import { getEllipses } from '../generator/ellipses';
+import { getEvents } from '../generator/events';
 
 @Component({
   selector: 'app-map',
@@ -49,49 +50,16 @@ export class AppMapComponent {
     });
   }
 
-  events: Event[] = [
-    {
-      id: '1',
-      status: '1',
-      name: 'event 1',
-      coordinate: { x: 34.89, y: 31.674 },
-    },
-    {
-      id: '2',
-      status: '2',
-      name: 'event 2',
-      coordinate: { x: 34.79, y: 31.674 },
-    },
-    {
-      id: '3',
-      status: '1',
-      name: 'event 3',
-      coordinate: { x: 34.89, y: 31.774 },
-    },
-    {
-      id: '4',
-      status: '1',
-      name: 'event 4',
-      coordinate: { x: 34.79, y: 31.774 },
-    },
-  ];
+  events: Event[] = [];
 
-  ellipses: Ellipse[] = [
-    {
-      id: 1,
-      xCenter: 34.59,
-      yCenter: 31.674,
-      angle: 48,
-      xSemiAxis: 4,
-      ySemiAxis: 3,
-    },
-    {
-      id: 2,
-      xCenter: 34.69,
-      yCenter: 31.774,
-      angle: 180,
-      xSemiAxis: 2,
-      ySemiAxis: 3,
-    },
-  ];
+  ellipses: Ellipse[] = [];
+
+  constructor() {
+    (window as any).genEllipses = (amount: number) => {
+      return (this.ellipses = getEllipses(amount));
+    };
+    (window as any).genEvents = (amount: number) => {
+      return (this.events = getEvents(amount));
+    };
+  }
 }

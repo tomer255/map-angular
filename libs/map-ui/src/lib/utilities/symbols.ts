@@ -5,12 +5,14 @@ import TextSymbol from '@arcgis/core/symbols/TextSymbol.js';
 
 export const fireSymbol = new PictureMarkerSymbol({
   url: 'symbols/inferno.svg',
-  width: 32,
-  height: 32,
+  width: 24,
+  height: 24,
 });
 
-export const blueMarkerSymbol = new SimpleMarkerSymbol({
-  color: 'blue',
+export const chemicalSymbol = new PictureMarkerSymbol({
+  url: 'symbols/nuclear.svg',
+  width: 24,
+  height: 24,
 });
 
 export const greenMarkerSymbol = new SimpleMarkerSymbol({
