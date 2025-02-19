@@ -29,7 +29,7 @@ export class EllipseComponent extends FeatureComponent {
     this.parent = parent;
   }
 
-  override ngOnInit(): void {
+  override async ngOnInit() {
     const ellipseT = ellipse(
       [this.ellipse().xCenter, this.ellipse().yCenter],
       this.ellipse().xSemiAxis,
@@ -48,6 +48,6 @@ export class EllipseComponent extends FeatureComponent {
       color: [255, 0, 0, 0.1],
       outline: { color: [255, 0, 0], width: '1px' },
     });
-    super.ngOnInit();
+    await super.ngOnInit();
   }
 }

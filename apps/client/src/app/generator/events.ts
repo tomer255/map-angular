@@ -1,15 +1,16 @@
 import { Event } from '@map-angular/map-ui';
 import { genRandomPoint, oneOf } from './utilities.js';
 
-let globalId = 1;
-
 function generat(): Event {
-  const id = (globalId++).toString();
   return {
-    id,
+    id: crypto.randomUUID(),
     coordinate: genRandomPoint(),
-    status: oneOf<'1' | '2'>(['1', '2']),
-    name: id,
+    status: oneOf<'1' | '2'>('1', '2'),
+    name: `אירוע ${oneOf('שירפה', 'דקירה', 'פיצוץ', 'תאונה')} ${oneOf(
+      'בבית ספר',
+      'בבית חולים',
+      'בגן ילדים'
+    )}`,
   };
 }
 

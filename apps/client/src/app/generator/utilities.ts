@@ -48,7 +48,7 @@ export function genRandomPoint(): Point {
   return point;
 }
 
-export function oneOf<T>(arr: T[]) {
+export function oneOf<T>(...arr: T[]) {
   const index = Math.floor(randomNamber(0, arr.length));
   return arr[index];
 }

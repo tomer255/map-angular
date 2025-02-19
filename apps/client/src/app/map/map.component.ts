@@ -1,4 +1,4 @@
-import { Component, signal, viewChild } from '@angular/core';
+import { AfterContentInit, Component, signal, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import '@arcgis/map-components/dist/components/arcgis-map';
 import '@arcgis/map-components/dist/components/arcgis-zoom';
@@ -39,20 +39,47 @@ declare global {
   styleUrl: './map.component.scss',
   providers: [],
 })
-export class AppMapComponent {
-  mapComponent = viewChild(LibMapComponent);
-  async goTo() {
-    const mapComponent = this.mapComponent();
+export class AppMapComponent implements AfterContentInit {
+  libMap = viewChild(LibMapComponent);
+  eventsLayer = viewChild(EventsLayerComponent);
+  ellipsesLayer = viewChild(EllipsesLayerComponent);
+  async resetView() {
+    const mapComponent = this.libMap();
     if (!mapComponent) return;
     const view = await mapComponent.viewReady.promise;
-    const testPint = new Point({
-      x: 34.890398187602784,
-      y: 31.774515514156032,
+    const point = new Point({
+      x: 34.89,
+      y: 31.77,
     });
-    const extent = new Extent({ ymax: 0.1 });
-    extent.centerAt(testPint);
-    view.goTo(extent, {
-      animationMode: 'always',
+    const extent = new Extent({ ymax: 3 });
+    extent.centerAt(point);
+    view.goTo(extent);
+  }
+
+  async ngAfterContentInit() {
+    const mapComponent = this.libMap();
+    if (!mapComponent) return;
+    const view = await mapComponent.viewReady.promise;
+    console.log({ view });
+
+    view.on('click', async (event) => {
+      const opts = {
+        include: this.eventsLayer()?.layer,
+      };
+      const response = await view.hitTest(event, opts);
+      console.log(response.results);
+      const x = response.results[0] as __esri.MapViewGraphicHit;
+      view.goTo(x.graphic.geometry);
+    });
+    view.on('click', async (event) => {
+      const opts = {
+        include: this.ellipsesLayer()?.layer,
+      };
+      const response = await view.hitTest(event, opts);
+      console.log(response.results);
+      const x = response.results[0];
+      if (x?.type !== 'graphic') return;
+      view.goTo(x.graphic);
     });
   }
 
@@ -64,15 +91,17 @@ export class AppMapComponent {
     window.test = {
       events: {
         generat: (amount: number) => {
-          return this.events.set(getEvents(amount));
+          this.events.set(getEvents(amount));
         },
         clear: () => this.events.set([]),
+        show: () => this.events(),
       },
       ellipses: {
         generat: (amount: number) => {
-          return this.ellipses.set(getEllipses(amount));
+          this.ellipses.set(getEllipses(amount));
         },
         clear: () => this.ellipses.set([]),
+        show: () => this.events(),
       },
     };
   }

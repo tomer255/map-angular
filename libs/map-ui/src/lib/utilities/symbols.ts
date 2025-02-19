@@ -17,6 +17,7 @@ export const chemicalSymbol = new PictureMarkerSymbol({
 
 export const greenMarkerSymbol = new SimpleMarkerSymbol({
   color: 'green',
+  size: 24,
 });
 
 export const labelSymbol = new TextSymbol({

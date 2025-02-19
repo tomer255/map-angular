@@ -1,5 +1,7 @@
 <lib-map>
-  <button (click)="goTo()" libMapWidget position="top-right">test2</button>
+  <button (click)="resetView()" libMapWidget position="top-right">
+    reset view
+  </button>
   <ellipses-layer>
     @for (ellipse of ellipses(); track ellipse.id) {
     <ellipse [ellipse]="ellipse" />

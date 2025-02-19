@@ -25,11 +25,14 @@ export class EventComponent extends FeatureComponent implements OnInit {
     this.parent = parent;
   }
 
-  override ngOnInit(): void {
+  override async ngOnInit() {
+    const timer = 'Graphic-' + this.event().id;
+    console.time(timer);
     this.graphic = new Graphic({
       attributes: this.event(),
       geometry: new Point(this.event().coordinate),
     });
-    super.ngOnInit();
+    await super.ngOnInit();
+    console.timeEnd(timer);
   }
 }

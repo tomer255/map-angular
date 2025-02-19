@@ -12,15 +12,15 @@ export class FeatureComponent implements OnInit, OnDestroy {
   parent: FeatureLayerComponent | undefined;
   graphic = new Graphic();
 
-  ngOnInit(): void {
+  async ngOnInit() {
     if (!this.parent) return;
-    this.parent.layer.applyEdits({
+    await this.parent.layer.applyEdits({
       addFeatures: [this.graphic],
     });
   }
-  ngOnDestroy(): void {
+  async ngOnDestroy() {
     if (!this.parent) return;
-    this.parent.layer.applyEdits({
+    await this.parent.layer.applyEdits({
       deleteFeatures: [this.graphic],
     });
   }
