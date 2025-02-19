@@ -3,15 +3,18 @@ import { CommonModule } from '@angular/common';
 import '@arcgis/map-components/dist/components/arcgis-map';
 import '@arcgis/map-components/dist/components/arcgis-zoom';
 import {
-  EllipseComponent,
-  GraphicsLayerComponent,
-  FeatureLayerComponent,
   LibMapComponent,
   MapWidgetDirective,
-  mapEvent,
-  MapEventComponent,
+  Event,
+  EllipseComponent,
+  Ellipse,
+  EllipsesLayerComponent,
+  EventsLayerComponent,
+  EventComponent,
 } from '@map-angular/map-ui';
 import Point from '@arcgis/core/geometry/Point';
+import Extent from '@arcgis/core/geometry/Extent.js';
+import { center } from '@turf/turf';
 
 @Component({
   selector: 'app-map',
@@ -20,10 +23,10 @@ import Point from '@arcgis/core/geometry/Point';
     CommonModule,
     LibMapComponent,
     MapWidgetDirective,
-    GraphicsLayerComponent,
+    EllipsesLayerComponent,
     EllipseComponent,
-    FeatureLayerComponent,
-    MapEventComponent,
+    EventsLayerComponent,
+    EventComponent,
   ],
   templateUrl: './map.component.html',
   styleUrl: './map.component.scss',
@@ -34,17 +37,19 @@ export class AppMapComponent {
   async goTo() {
     const mapComponent = this.mapComponent();
     if (!mapComponent) return;
-    const map = await mapComponent.mapReady.promise;
+    const view = await mapComponent.viewReady.promise;
     const testPint = new Point({
       x: 34.890398187602784,
       y: 31.774515514156032,
     });
-    map.view.goTo(testPint, {
+    const extent = new Extent({ ymax: 0.1 });
+    extent.centerAt(testPint);
+    view.goTo(extent, {
       animationMode: 'always',
     });
   }
 
-  events: mapEvent[] = [
+  events: Event[] = [
     {
       id: '1',
       status: '1',
@@ -68,6 +73,25 @@ export class AppMapComponent {
       status: '1',
       name: 'event 4',
       coordinate: { x: 34.79, y: 31.774 },
+    },
+  ];
+
+  ellipses: Ellipse[] = [
+    {
+      id: 1,
+      xCenter: 34.59,
+      yCenter: 31.674,
+      angle: 48,
+      xSemiAxis: 4,
+      ySemiAxis: 3,
+    },
+    {
+      id: 2,
+      xCenter: 34.69,
+      yCenter: 31.774,
+      angle: 180,
+      xSemiAxis: 2,
+      ySemiAxis: 3,
     },
   ];
 }

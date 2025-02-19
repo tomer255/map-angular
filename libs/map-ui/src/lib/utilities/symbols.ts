@@ -1,4 +1,5 @@
 import PictureMarkerSymbol from '@arcgis/core/symbols/PictureMarkerSymbol';
+import SimpleFillSymbol from '@arcgis/core/symbols/SimpleFillSymbol';
 import SimpleMarkerSymbol from '@arcgis/core/symbols/SimpleMarkerSymbol';
 import TextSymbol from '@arcgis/core/symbols/TextSymbol.js';
 
@@ -23,4 +24,9 @@ export const labelSymbol = new TextSymbol({
   font: {
     size: 12,
   },
+});
+
+export const redEllipse = new SimpleFillSymbol({
+  color: [255, 0, 0, 0.1],
+  outline: { color: [255, 0, 0], width: '1px' },
 });

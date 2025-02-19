@@ -25,11 +25,9 @@ export class GraphicsLayerComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    const map = await this.parent.mapReady.promise;
-    map.addLayer(this.layer);
+    this.parent.map.add(this.layer);
   }
   async ngOnDestroy(): Promise<void> {
-    const map = await this.parent.mapReady.promise;
-    // TODO : remove layer
+    this.parent.map.remove(this.layer);
   }
 }

@@ -34,14 +34,14 @@ export class MapWidgetDirective implements OnInit, OnDestroy {
   }
 
   async ngOnInit(): Promise<void> {
-    const map = await this.parent.mapReady.promise;
-    map.view.ui.add(this.elementRef.nativeElement, {
+    const view = await this.parent.viewReady.promise;
+    view.ui.add(this.elementRef.nativeElement, {
       position: this.position(),
     });
   }
 
   async ngOnDestroy(): Promise<void> {
-    const map = await this.parent.mapReady.promise;
-    map.view.ui.remove(this.elementRef.nativeElement);
+    const view = await this.parent.viewReady.promise;
+    view.ui.remove(this.elementRef.nativeElement);
   }
 }

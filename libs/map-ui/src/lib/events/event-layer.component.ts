@@ -18,16 +18,17 @@ import {
   fireSymbol,
 } from '../utilities/symbols';
 import FeatureReductionCluster from '@arcgis/core/layers/support/FeatureReductionCluster.js';
+import { FeatureLayerComponent } from '../feature/feature-layer.component';
 @Component({
-  selector: 'feature-layer',
+  selector: 'events-layer',
   standalone: true,
   imports: [],
   template: '<ng-content />',
 })
-export class FeatureLayerComponent implements OnInit, OnDestroy {
-  layer = new FeatureLayer({
+export class EventsLayerComponent extends FeatureLayerComponent {
+  override layer = new FeatureLayer({
     spatialReference: { wkid: 4326 },
-    title: 'feature-layer',
+    title: 'events-layer',
     source: [],
     fields: [
       new Field({ name: 'id', type: 'oid' }),
@@ -36,19 +37,7 @@ export class FeatureLayerComponent implements OnInit, OnDestroy {
     ],
     objectIdField: 'id',
     geometryType: 'point',
-  });
-  parent: LibMapComponent;
-  elementRef = inject(ElementRef);
-
-  constructor(@Host() parent: LibMapComponent) {
-    this.parent = parent;
-  }
-
-  async ngOnInit(): Promise<void> {
-    const map = await this.parent.mapReady.promise;
-    this.layer.objectIdField = 'id';
-    this.layer.featureReduction = new FeatureReductionCluster({
-      type: 'cluster',
+    featureReduction: new FeatureReductionCluster({
       clusterRadius: 100,
       symbol: greenMarkerSymbol,
       labelingInfo: [
@@ -61,8 +50,8 @@ export class FeatureLayerComponent implements OnInit, OnDestroy {
           symbol: labelSymbol,
         },
       ],
-    });
-    this.layer.labelingInfo = [
+    }),
+    labelingInfo: [
       new LabelClass({
         labelExpressionInfo: {
           expression: '$feature.name',
@@ -70,8 +59,8 @@ export class FeatureLayerComponent implements OnInit, OnDestroy {
         labelPlacement: 'below-center',
         symbol: labelSymbol,
       }),
-    ];
-    this.layer.renderer = new UniqueValueRenderer({
+    ],
+    renderer: new UniqueValueRenderer({
       field: 'status',
       defaultSymbol: greenMarkerSymbol,
       legendOptions: { title: 'bla' },
@@ -87,12 +76,6 @@ export class FeatureLayerComponent implements OnInit, OnDestroy {
           value: '2',
         },
       ],
-    });
-    map.addLayer(this.layer);
-  }
-
-  async ngOnDestroy(): Promise<void> {
-    const map = await this.parent.mapReady.promise;
-    // TODO : remove layer
-  }
+    }),
+  });
 }

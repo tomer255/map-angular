@@ -1,6 +1,6 @@
 import { Component, Host, OnDestroy, OnInit } from '@angular/core';
 import Graphic from '@arcgis/core/Graphic';
-import { FeatureLayerComponent } from '../feature-layer/feature-layer.component';
+import { FeatureLayerComponent } from './feature-layer.component';
 
 @Component({
   selector: 'feature',
@@ -9,19 +9,17 @@ import { FeatureLayerComponent } from '../feature-layer/feature-layer.component'
   template: '<ng-content />',
 })
 export class FeatureComponent implements OnInit, OnDestroy {
-  parent: FeatureLayerComponent;
+  parent: FeatureLayerComponent | undefined;
   graphic = new Graphic();
 
-  constructor(@Host() parent: FeatureLayerComponent) {
-    this.parent = parent;
-  }
-
   ngOnInit(): void {
+    if (!this.parent) return;
     this.parent.layer.applyEdits({
       addFeatures: [this.graphic],
     });
   }
   ngOnDestroy(): void {
+    if (!this.parent) return;
     this.parent.layer.applyEdits({
       deleteFeatures: [this.graphic],
     });

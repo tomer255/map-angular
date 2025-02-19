@@ -1,9 +1,10 @@
-import { Component, input, OnInit } from '@angular/core';
+import { Component, Host, input, OnInit } from '@angular/core';
 import Graphic from '@arcgis/core/Graphic';
 import Point from '@arcgis/core/geometry/Point';
 import { FeatureComponent } from '../feature/feature.component';
+import { EventsLayerComponent } from './event-layer.component';
 
-export type mapEvent = {
+export type Event = {
   id: string;
   status: '1' | '2';
   name: string;
@@ -11,17 +12,20 @@ export type mapEvent = {
 };
 
 @Component({
-  selector: 'map-event',
+  selector: 'event',
   standalone: true,
   imports: [],
   template: '<ng-content />',
 })
-export class MapEventComponent extends FeatureComponent implements OnInit {
-  event = input.required<mapEvent>();
+export class EventComponent extends FeatureComponent implements OnInit {
+  event = input.required<Event>();
+
+  constructor(@Host() parent: EventsLayerComponent) {
+    super();
+    this.parent = parent;
+  }
 
   override ngOnInit(): void {
-    console.log('evetn:', this.event());
-
     this.graphic = new Graphic({
       attributes: this.event(),
       geometry: new Point(this.event().coordinate),
