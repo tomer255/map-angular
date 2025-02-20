@@ -1,12 +1,10 @@
 import { Ellipse } from '@map-angular/map-ui';
 import { genRandomPoint, randomNamber } from './utilities.js';
 
-let id = 1;
-
 function generat(): Ellipse {
   const { x, y } = genRandomPoint();
   return {
-    id: id++,
+    id: crypto.randomUUID(),
     xCenter: x,
     yCenter: y,
     xSemiAxis: randomNamber(3, 10),

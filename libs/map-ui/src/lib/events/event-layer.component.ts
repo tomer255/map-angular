@@ -18,6 +18,7 @@ import {
   fireSymbol,
 } from '../utilities/symbols';
 import FeatureReductionCluster from '@arcgis/core/layers/support/FeatureReductionCluster.js';
+import FeatureReductionSelection from '@arcgis/core/layers/support/FeatureReductionSelection';
 import { FeatureLayerComponent } from '../feature/feature-layer.component';
 @Component({
   selector: 'events-layer',
@@ -26,6 +27,21 @@ import { FeatureLayerComponent } from '../feature/feature-layer.component';
   template: '<ng-content />',
 })
 export class EventsLayerComponent extends FeatureLayerComponent {
+  featureReductionCluster = new FeatureReductionCluster({
+    clusterRadius: 100,
+    symbol: greenMarkerSymbol,
+    labelingInfo: [
+      {
+        labelExpressionInfo: {
+          expression: '$feature.cluster_count',
+        },
+        deconflictionStrategy: 'none',
+        labelPlacement: 'center-center',
+        symbol: labelSymbol,
+      },
+    ],
+  });
+  featureReductionSelection = new FeatureReductionSelection();
   override layer = new FeatureLayer({
     spatialReference: { wkid: 4326 },
     title: 'events-layer',
@@ -37,20 +53,6 @@ export class EventsLayerComponent extends FeatureLayerComponent {
     ],
     objectIdField: 'id',
     geometryType: 'point',
-    // featureReduction: new FeatureReductionCluster({
-    //   clusterRadius: 100,
-    //   symbol: greenMarkerSymbol,
-    //   labelingInfo: [
-    //     {
-    //       labelExpressionInfo: {
-    //         expression: '$feature.cluster_count',
-    //       },
-    //       deconflictionStrategy: 'none',
-    //       labelPlacement: 'center-center',
-    //       symbol: labelSymbol,
-    //     },
-    //   ],
-    // }),
     labelingInfo: [
       new LabelClass({
         labelExpressionInfo: {
@@ -78,4 +80,9 @@ export class EventsLayerComponent extends FeatureLayerComponent {
       ],
     }),
   });
+
+  classter(show: boolean) {
+    if (show) this.layer.featureReduction = this.featureReductionCluster;
+    else this.layer.featureReduction = this.featureReductionSelection; // undefined as any;
+  }
 }

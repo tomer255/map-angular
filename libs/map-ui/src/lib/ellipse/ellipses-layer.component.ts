@@ -4,6 +4,7 @@ import SimpleRenderer from '@arcgis/core/renderers/SimpleRenderer.js';
 import { redEllipse } from '../utilities/symbols';
 import Field from '@arcgis/core/layers/support/Field';
 import { FeatureLayerComponent } from '../feature/feature-layer.component';
+import { GraphicsLayerComponent } from '../graphic/graphics-layer.component';
 
 @Component({
   selector: 'ellipses-layer',
@@ -11,20 +12,20 @@ import { FeatureLayerComponent } from '../feature/feature-layer.component';
   imports: [],
   template: '<ng-content />',
 })
-export class EllipsesLayerComponent extends FeatureLayerComponent {
-  override layer = new FeatureLayer({
-    spatialReference: { wkid: 4326 },
-    title: 'test-feature-layer',
-    source: [],
-    fields: [
-      new Field({ name: 'id', type: 'oid' }),
-      new Field({ name: 'label', type: 'string' }),
-    ],
-    objectIdField: 'id',
-    geometryType: 'polygon',
-    renderer: new SimpleRenderer({
-      label: 'label',
-      symbol: redEllipse,
-    }),
-  });
+export class EllipsesLayerComponent extends GraphicsLayerComponent {
+  // override layer = new FeatureLayer({
+  //   spatialReference: { wkid: 4326 },
+  //   title: 'test-feature-layer',
+  //   source: [],
+  //   fields: [
+  //     new Field({ name: 'id', type: 'oid' }),
+  //     new Field({ name: 'label', type: 'string' }),
+  //   ],
+  //   objectIdField: 'id',
+  //   geometryType: 'polygon',
+  //   renderer: new SimpleRenderer({
+  //     label: 'label',
+  //     symbol: redEllipse,
+  //   }),
+  // });
 }

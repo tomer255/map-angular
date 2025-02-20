@@ -1,7 +1,48 @@
 <lib-map>
-  <button (click)="resetView()" libMapWidget position="top-right">
-    reset view
-  </button>
+  <div libMapWidget position="top-right" class="widget">
+    <span>view</span>
+    <button (click)="myTest.view.reset()">reset view</button>
+  </div>
+  <div libMapWidget position="top-right" class="widget">
+    <span>events</span>
+    <div>
+      <input type="number" #eventsAmount />
+      <button (click)="myTest.events.generate(parseInt(eventsAmount.value))">
+        generate
+      </button>
+    </div>
+    <button (click)="myTest.events.clear()">clear all events</button>
+  </div>
+  <div libMapWidget position="top-right" class="widget">
+    <span>ellipses</span>
+    <div>
+      <input type="number" #ellipsesAmount />
+      <button
+        (click)="myTest.ellipses.generate(parseInt(ellipsesAmount.value))"
+      >
+        generate
+      </button>
+    </div>
+    <button (click)="myTest.ellipses.clear()">clear all ellipses</button>
+  </div>
+  <!-- <basemap /> -->
+  <!-- @for (baseLayer of baseLayers(); track baseLayer.title) {
+  <vector-tile-layer
+    [url]="baseLayer.url"
+    [title]="baseLayer.title"
+    [visible]="baseLayer.visible"
+  />
+  } -->
+  <vector-tile-layer
+    url="https://cdn.arcgis.com/sharing/rest/content/items/7dc6cea0b1764a1f9af2e679f642f0f5/resources/styles/root.json"
+    title="my-Vector"
+    [visible]="true"
+  />
+  <!-- <vector-tile-layer
+    url="https://basemaps.arcgis.com/arcgis/rest/services/World_Basemap_v2/VectorTileServer"
+    title="fox"
+    [visible]="true"
+  /> -->
   <ellipses-layer>
     @for (ellipse of ellipses(); track ellipse.id) {
     <ellipse [ellipse]="ellipse" />

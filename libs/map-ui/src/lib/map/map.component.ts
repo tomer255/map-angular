@@ -8,10 +8,8 @@ import '@arcgis/map-components/dist/components/arcgis-map';
 import '@arcgis/map-components/dist/components/arcgis-zoom';
 import '@arcgis/map-components/dist/components/arcgis-basemap-gallery';
 import { promiseHook } from '../promise.hook';
-import VectorTileLayer from '@arcgis/core/layers/VectorTileLayer';
 import Map from '@arcgis/core/Map';
 import MapView from '@arcgis/core/views/MapView.js';
-import Basemap from '@arcgis/core/Basemap.js';
 
 @Component({
   selector: 'lib-map',
@@ -24,17 +22,7 @@ import Basemap from '@arcgis/core/Basemap.js';
 export class LibMapComponent implements AfterContentInit {
   viewReady = promiseHook<MapView>();
 
-  map = new Map({
-    basemap: new Basemap({
-      baseLayers: [
-        new VectorTileLayer({
-          url: 'https://cdn.arcgis.com/sharing/rest/content/items/7dc6cea0b1764a1f9af2e679f642f0f5/resources/styles/root.json',
-          title: 'my-Vector',
-          visible: true,
-        }),
-      ],
-    }),
-  });
+  map = new Map();
 
   ngAfterContentInit(): void {
     const view = new MapView({

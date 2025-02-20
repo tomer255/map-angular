@@ -1,6 +1,7 @@
 import { Component, Host, OnDestroy, OnInit } from '@angular/core';
 import { LibMapComponent } from '../map/map.component';
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer';
+import Graphic from '@arcgis/core/Graphic';
 
 @Component({
   selector: 'feature-layer',
@@ -16,9 +17,28 @@ export class FeatureLayerComponent implements OnInit, OnDestroy {
     fields: [],
   });
   parent: LibMapComponent;
+  timerId: number;
+
+  features: {
+    addFeatures: Graphic[];
+    updateFeatures: Graphic[];
+    deleteFeatures: Graphic[];
+  } = {
+    addFeatures: [],
+    updateFeatures: [],
+    deleteFeatures: [],
+  };
 
   constructor(@Host() parent: LibMapComponent) {
     this.parent = parent;
+    this.timerId = setInterval(() => {
+      this.layer.applyEdits(this.features);
+      this.features = {
+        addFeatures: [],
+        updateFeatures: [],
+        deleteFeatures: [],
+      };
+    }, 100);
   }
 
   ngOnInit(): void {
@@ -26,6 +46,7 @@ export class FeatureLayerComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
+    clearInterval(this.timerId);
     this.parent.map.remove(this.layer);
   }
 }

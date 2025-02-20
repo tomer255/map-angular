@@ -1,6 +1,25 @@
 @import url('https://js.arcgis.com/4.31/@arcgis/core/assets/esri/themes/dark/main.css');
 
-arcgis-map {
-  display: block;
-  height: 100vh;
+.widget {
+  background-color: #fff;
+  padding: 1rem;
+  border: 1px solid #000;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  & button {
+    border: 1px solid #494cff;
+    color: #494cff;
+    background-color: transparent;
+    border-radius: 5px;
+    transition: all 250ms linear;
+    &:hover {
+      color: #fff;
+      background-color: #494cff;
+    }
+  }
+  input[type='number'] {
+    width: 10ch;
+  }
 }
