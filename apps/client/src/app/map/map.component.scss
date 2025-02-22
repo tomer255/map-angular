@@ -1,23 +1,35 @@
 @import url('https://js.arcgis.com/4.31/@arcgis/core/assets/esri/themes/dark/main.css');
 
 .widget {
-  background-color: #fff;
+  --primary-color: #494cff;
+  --foreground-color: #111;
+  --background-color: #eee;
+  --border-radius: 5px;
+
+  background-color: var(--background-color);
+  border: 1px solid var(--foreground-color);
+  color: var(--foreground-color);
   padding: 1rem;
-  border: 1px solid #000;
-  border-radius: 5px;
+  border-radius: var(--border-radius);
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
   & button {
-    border: 1px solid #494cff;
-    color: #494cff;
+    border: 1px solid var(--primary-color);
+    color: var(--primary-color);
     background-color: transparent;
-    border-radius: 5px;
+    border-radius: var(--border-radius);
     transition: all 250ms linear;
     &:hover {
-      color: #fff;
-      background-color: #494cff;
+      color: var(--background-color);
+      background-color: var(--primary-color);
     }
+  }
+  input {
+    background-color: var(--background-color);
+    border: 1px solid var(--primary-color);
+    border-radius: var(--border-radius);
+    color: var(--foreground-color);
   }
   input[type='number'] {
     width: 10ch;
