@@ -1,8 +1,4 @@
-import {
-  AfterContentInit,
-  Component,
-  CUSTOM_ELEMENTS_SCHEMA,
-} from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import '@arcgis/map-components/dist/components/arcgis-map';
 import '@arcgis/map-components/dist/components/arcgis-zoom';
@@ -10,6 +6,7 @@ import '@arcgis/map-components/dist/components/arcgis-basemap-gallery';
 import { promiseHook } from '../promise.hook';
 import Map from '@arcgis/core/Map';
 import MapView from '@arcgis/core/views/MapView.js';
+import Basemap from '@arcgis/core/Basemap';
 
 @Component({
   selector: 'lib-map',
@@ -17,14 +14,16 @@ import MapView from '@arcgis/core/views/MapView.js';
   imports: [CommonModule],
   templateUrl: './map.component.html',
   styleUrl: './map.component.scss',
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+  schemas: [],
 })
-export class LibMapComponent implements AfterContentInit {
+export class LibMapComponent implements OnInit {
   viewReady = promiseHook<MapView>();
 
-  map = new Map();
+  map = new Map({
+    basemap: new Basemap(),
+  });
 
-  ngAfterContentInit(): void {
+  ngOnInit(): void {
     const view = new MapView({
       map: this.map, // References a Map instance
       container: 'viewDiv',

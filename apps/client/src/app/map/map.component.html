@@ -25,7 +25,6 @@
     </div>
     <button (click)="myTest.ellipses.clear()">clear all ellipses</button>
   </div>
-  <!-- <basemap /> -->
   <!-- @for (baseLayer of baseLayers(); track baseLayer.title) {
   <vector-tile-layer
     [url]="baseLayer.url"
@@ -43,11 +42,29 @@
     title="fox"
     [visible]="true"
   /> -->
-  <ellipses-layer>
+
+  <graphics-layer>
+    @for (event of events(); track event.id) {
+    <sector
+      [sector]="event.riskAssessments.imminent"
+      [symbol]="fillRedSymbol"
+    />
+    <sector
+      [sector]="event.riskAssessments.immediate"
+      [symbol]="fillYellowSymbol"
+    />
+    <sector
+      [sector]="event.riskAssessments.possible"
+      [symbol]="fillGreenSymbol"
+    />
+    }
+  </graphics-layer>
+
+  <graphics-layer>
     @for (ellipse of ellipses(); track ellipse.id) {
     <ellipse [ellipse]="ellipse" />
     }
-  </ellipses-layer>
+  </graphics-layer>
   <events-layer>
     @for (event of events(); track event.id) {
     <event [event]="event" />

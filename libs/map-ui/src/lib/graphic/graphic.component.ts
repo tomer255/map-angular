@@ -13,6 +13,10 @@ export class GraphicComponent implements OnDestroy {
   parent: GraphicsLayerComponent | undefined;
   graphic = new Graphic();
 
+  constructor(@Host() parent: GraphicsLayerComponent) {
+    this.parent = parent;
+  }
+
   add() {
     if (!this.parent) return;
     this.parent.layer.add(this.graphic);

@@ -1,19 +1,7 @@
-import {
-  Component,
-  effect,
-  Host,
-  input,
-  OnChanges,
-  OnInit,
-  SimpleChanges,
-} from '@angular/core';
+import { Component, effect, Host, input, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import '@arcgis/map-components/dist/components/arcgis-map';
-import '@arcgis/map-components/dist/components/arcgis-zoom';
-import '@arcgis/map-components/dist/components/arcgis-basemap-gallery';
 import VectorTileLayer from '@arcgis/core/layers/VectorTileLayer';
-import { BasemapComponent } from './basemap.component';
-import { LibMapComponent } from '../map/map.component';
+import { LibMapComponent } from './map/map.component';
 
 @Component({
   selector: 'vector-tile-layer',

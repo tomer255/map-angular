@@ -29,7 +29,17 @@ export const labelSymbol = new TextSymbol({
   },
 });
 
-export const redEllipse = new SimpleFillSymbol({
+export const fillRedSymbol = new SimpleFillSymbol({
   color: [255, 0, 0, 0.1],
   outline: { color: [255, 0, 0], width: '1px' },
+});
+
+export const fillYellowSymbol = new SimpleFillSymbol({
+  color: [255, 255, 0, 0.1],
+  outline: { color: [255, 255, 0], width: '1px' },
+});
+
+export const fillGreenSymbol = new SimpleFillSymbol({
+  color: [0, 255, 0, 0.1],
+  outline: { color: [0, 255, 0], width: '1px' },
 });

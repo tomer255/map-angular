@@ -1,18 +1,19 @@
 import { AfterContentInit, Component, signal, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import '@arcgis/map-components/dist/components/arcgis-map';
-import '@arcgis/map-components/dist/components/arcgis-zoom';
 import {
   LibMapComponent,
   MapWidgetDirective,
   Event,
   EllipseComponent,
   Ellipse,
-  EllipsesLayerComponent,
   EventsLayerComponent,
   EventComponent,
-  BasemapComponent,
   VectorTileLayerComponent,
+  GraphicsLayerComponent,
+  SectorComponent,
+  fillRedSymbol,
+  fillGreenSymbol,
+  fillYellowSymbol,
 } from '@map-angular/map-ui';
 import Point from '@arcgis/core/geometry/Point';
 import Extent from '@arcgis/core/geometry/Extent.js';
@@ -61,12 +62,12 @@ type BaseLayer = {
     CommonModule,
     LibMapComponent,
     MapWidgetDirective,
-    EllipsesLayerComponent,
     EllipseComponent,
     EventsLayerComponent,
     EventComponent,
-    BasemapComponent,
     VectorTileLayerComponent,
+    GraphicsLayerComponent,
+    SectorComponent,
   ],
   templateUrl: './map.component.html',
   styleUrl: './map.component.scss',
@@ -74,37 +75,16 @@ type BaseLayer = {
 })
 export class AppMapComponent implements AfterContentInit {
   libMap = viewChild(LibMapComponent);
-  eventsLayer = viewChild(EventsLayerComponent);
-  ellipsesLayer = viewChild(EllipsesLayerComponent);
   VectorTileLayer = viewChild(VectorTileLayerComponent);
   vis = signal<boolean>(true);
 
-  async ngAfterContentInit() {
-    (window as any).vis = this.vis;
-    const mapComponent = this.libMap();
-    if (!mapComponent) return;
-    const view = await mapComponent.viewReady.promise;
-    console.log({ view });
+  fillRedSymbol = fillRedSymbol;
+  fillGreenSymbol = fillGreenSymbol;
+  fillYellowSymbol = fillYellowSymbol;
 
-    view.on('click', async (event) => {
-      const opts = {
-        include: this.eventsLayer()?.layer,
-      };
-      const response = await view.hitTest(event, opts);
-      console.log(response.results);
-      const x = response.results[0] as __esri.MapViewGraphicHit;
-      view.goTo(x.graphic.geometry);
-    });
-    view.on('click', async (event) => {
-      const opts = {
-        include: this.ellipsesLayer()?.layer,
-      };
-      const response = await view.hitTest(event, opts);
-      console.log(response.results);
-      const x = response.results[0];
-      if (x?.type !== 'graphic') return;
-      view.goTo(x.graphic);
-    });
+  async ngAfterContentInit() {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (window as any).vis = this.vis;
   }
 
   parseInt = parseInt;

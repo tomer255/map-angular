@@ -3,19 +3,31 @@ import {
   Host,
   input,
   OnChanges,
-  OnInit,
   SimpleChanges,
 } from '@angular/core';
-import Graphic from '@arcgis/core/Graphic';
 import Point from '@arcgis/core/geometry/Point';
 import { FeatureComponent } from '../feature/feature.component';
 import { EventsLayerComponent } from './event-layer.component';
+export type Sector = {
+  id: string;
+  xCenter: number;
+  yCenter: number;
+  radius: number;
+  bearing1: number;
+  bearing2: number;
+};
 
+export type RiskAssessments = {
+  imminent: Sector;
+  immediate: Sector;
+  possible: Sector;
+};
 export type Event = {
   id: string;
   status: '1' | '2';
   name: string;
   coordinate: { x: number; y: number };
+  riskAssessments: RiskAssessments;
 };
 
 @Component({
