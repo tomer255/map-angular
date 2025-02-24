@@ -1,6 +1,5 @@
 import { Component, Host, OnDestroy, OnInit } from '@angular/core';
 import Graphic from '@arcgis/core/Graphic';
-import GraphicsLayer from '@arcgis/core/layers/GraphicsLayer';
 import { GraphicsLayerComponent } from './graphics-layer.component';
 
 @Component({
@@ -10,7 +9,7 @@ import { GraphicsLayerComponent } from './graphics-layer.component';
   template: '<ng-content />',
 })
 export class GraphicComponent implements OnDestroy {
-  parent: GraphicsLayerComponent | undefined;
+  parent: GraphicsLayerComponent;
   graphic = new Graphic();
 
   constructor(@Host() parent: GraphicsLayerComponent) {
@@ -18,17 +17,12 @@ export class GraphicComponent implements OnDestroy {
   }
 
   add() {
-    if (!this.parent) return;
     this.parent.layer.add(this.graphic);
   }
 
-  update() {
-    this.delete();
-    this.add();
-  }
+  update() {}
 
   delete() {
-    if (!this.parent) return;
     this.parent.layer.remove(this.graphic);
   }
 

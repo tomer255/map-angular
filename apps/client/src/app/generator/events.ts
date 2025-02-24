@@ -11,7 +11,7 @@ function generate(): Event {
       'בבית ספר',
       'בבית חולים',
       'בגן ילדים',
-      'בינין מגורים'
+      'בניין מגורים'
     )}`,
     riskAssessments: {
       immediate: {
