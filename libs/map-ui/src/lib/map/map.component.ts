@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewEncapsulation } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import '@arcgis/map-components/dist/components/arcgis-map';
 import '@arcgis/map-components/dist/components/arcgis-zoom';
@@ -13,8 +13,9 @@ import Basemap from '@arcgis/core/Basemap';
   standalone: true,
   imports: [CommonModule],
   templateUrl: './map.component.html',
-  styleUrl: './map.component.scss',
+  styleUrl: './map.component.css',
   schemas: [],
+  encapsulation: ViewEncapsulation.None,
 })
 export class LibMapComponent implements OnInit {
   viewReady = promiseHook<MapView>();
