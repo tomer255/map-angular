@@ -1,8 +1,8 @@
 import { Component, input, SimpleChanges } from '@angular/core';
 import { ellipse as turfEllipse, Units } from '@turf/turf';
 import Polygon from '@arcgis/core/geometry/Polygon';
-import SimpleFillSymbol from '@arcgis/core/symbols/SimpleFillSymbol';
 import { GraphicComponent } from './graphic/graphic.component';
+import { fillRedSymbol } from './utilities/symbols';
 
 export type Ellipse = {
   id: string;
@@ -13,6 +13,8 @@ export type Ellipse = {
   angle: number;
 };
 
+const MINUTE = 1000 * 60;
+
 @Component({
   selector: 'ellipse',
   standalone: true,
@@ -21,6 +23,12 @@ export type Ellipse = {
 })
 export class EllipseComponent extends GraphicComponent {
   ellipse = input.required<Ellipse>();
+  // time = input.required<Date>();
+
+  setColor() {
+    const now = new Date();
+    const threshold1 = new Date(now.getTime() - 1 * MINUTE);
+  }
 
   updateGraphic(ellipse: Ellipse) {
     const ellipseT = turfEllipse(
@@ -37,16 +45,15 @@ export class EllipseComponent extends GraphicComponent {
       spatialReference: { wkid: 4326 },
       rings: ellipseT.geometry.coordinates,
     });
-    this.graphic.symbol = new SimpleFillSymbol({
-      color: [255, 0, 0, 0.1],
-      outline: { color: [255, 0, 0], width: '1px' },
-    });
+    this.graphic.symbol = fillRedSymbol;
   }
 
   ngOnChanges(changes: SimpleChanges): void {
     const { firstChange, currentValue } = changes['ellipse'];
     this.updateGraphic(currentValue);
-    if (firstChange) return this.add();
-    this.update();
+    if (firstChange) {
+      this.add();
+      return;
+    }
   }
 }

@@ -1,10 +1,14 @@
-<lib-map>
+<lib-map (viewClick)="viewClick($event)">
   <div libMapWidget position="top-right" class="widget">
     <span>view</span>
     <button (click)="myTest.view.reset()">reset view</button>
   </div>
   <div libMapWidget position="top-right" class="widget">
     <span>events</span>
+    <label>
+      <input type="checkbox" (change)="changeEventClasster($event)" />
+      <span>classter</span>
+    </label>
     <div>
       <input type="number" #eventsAmount />
       <button (click)="myTest.events.generate(parseInt(eventsAmount.value))">
@@ -25,6 +29,16 @@
     </div>
     <button (click)="myTest.ellipses.clear()">clear all ellipses</button>
   </div>
+  <div libMapWidget position="top-right" class="widget">
+    <span>ruler</span>
+    <label>
+      <input #rulerActive type="checkbox" />
+      <span>active</span>
+    </label>
+    <span>{{ ruler.length().toFixed(3) }} kilometers</span>
+    <button (click)="ruler.reset()">reset</button>
+  </div>
+
   <!-- @for (baseLayer of baseLayers(); track baseLayer.title) {
   <vector-tile-layer
     [url]="baseLayer.url"
@@ -65,9 +79,10 @@
     <ellipse [ellipse]="ellipse" />
     }
   </graphics-layer>
-  <events-layer>
+  <events-layer #eventsLayer>
     @for (event of events(); track event.id) {
     <event [event]="event" />
     }
   </events-layer>
+  <ruler #ruler />
 </lib-map>

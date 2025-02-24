@@ -1,9 +1,9 @@
-import { AfterContentInit, Component, signal, viewChild } from '@angular/core';
+import { Component, ElementRef, signal, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   LibMapComponent,
   MapWidgetDirective,
-  Event,
+  Event as MapEvent,
   EllipseComponent,
   Ellipse,
   EventsLayerComponent,
@@ -14,40 +14,12 @@ import {
   fillRedSymbol,
   fillGreenSymbol,
   fillYellowSymbol,
+  RulerComponent,
 } from '@map-angular/map-ui';
 import Point from '@arcgis/core/geometry/Point';
 import Extent from '@arcgis/core/geometry/Extent.js';
 import { getEllipses } from '../generator/ellipses';
 import { getEvents } from '../generator/events';
-
-type MyTest = {
-  view: {
-    reset: () => Promise<void>;
-  };
-  lyaers: {
-    chnage: (title: string) => void;
-  };
-  events: {
-    generate: (amount: number) => void;
-    clear: () => void;
-    update: (event: Event) => void;
-    remove: (id: Event['id']) => void;
-    show: () => Event[];
-  };
-  ellipses: {
-    generate: (amount: number) => void;
-    clear: () => void;
-    update: (event: Ellipse) => void;
-    remove: (id: Ellipse['id']) => void;
-    show: () => Ellipse[];
-  };
-};
-
-declare global {
-  interface Window {
-    myTest: MyTest;
-  }
-}
 
 type BaseLayer = {
   url: string;
@@ -68,28 +40,44 @@ type BaseLayer = {
     VectorTileLayerComponent,
     GraphicsLayerComponent,
     SectorComponent,
+    RulerComponent,
   ],
   templateUrl: './map.component.html',
   styleUrl: './map.component.scss',
   providers: [],
 })
-export class AppMapComponent implements AfterContentInit {
+export class AppMapComponent {
   libMap = viewChild(LibMapComponent);
-  VectorTileLayer = viewChild(VectorTileLayerComponent);
+  eventsLayer = viewChild(EventsLayerComponent);
+  ruler = viewChild(RulerComponent);
+  rulerActive = viewChild<ElementRef<HTMLInputElement>>('rulerActive');
   vis = signal<boolean>(true);
 
   fillRedSymbol = fillRedSymbol;
   fillGreenSymbol = fillGreenSymbol;
   fillYellowSymbol = fillYellowSymbol;
 
-  async ngAfterContentInit() {
+  constructor() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).vis = this.vis;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    (window as any).myTest = this.myTest;
+  }
+
+  viewClick(event: __esri.ViewClickEvent) {
+    const point = event.mapPoint;
+    if (!this.rulerActive()?.nativeElement.checked) return;
+    this.ruler()?.addPoint(point);
   }
 
   parseInt = parseInt;
 
-  events = signal<Event[]>([]);
+  changeEventClasster(event: Event) {
+    const checkbox = event.target as HTMLInputElement;
+    this.eventsLayer()?.setClasster(checkbox.checked);
+  }
+
+  events = signal<MapEvent[]>([]);
 
   ellipses = signal<Ellipse[]>([]);
 
@@ -106,12 +94,11 @@ export class AppMapComponent implements AfterContentInit {
     },
   ]);
 
-  myTest: MyTest = {
+  myTest = {
     view: {
-      reset: async () => {
-        const mapComponent = this.libMap();
-        if (!mapComponent) return;
-        const view = await mapComponent.viewReady.promise;
+      reset: () => {
+        const view = this.libMap()?.view;
+        if (!view) return;
         const point = new Point({
           x: 34.89,
           y: 31.77,
@@ -133,12 +120,12 @@ export class AppMapComponent implements AfterContentInit {
         this.events.update((prev) => [...prev, ...getEvents(amount)]);
       },
       clear: () => this.events.set([]),
-      update: (event: Event) => {
+      update: (event: MapEvent) => {
         this.events.update((events) =>
           events.map((e) => (e.id === event.id ? { ...event } : e))
         );
       },
-      remove: (id: Event['id']) => {
+      remove: (id: MapEvent['id']) => {
         this.events.update((events) => events.filter((e) => e.id !== id));
       },
       show: () => this.events(),
@@ -159,8 +146,4 @@ export class AppMapComponent implements AfterContentInit {
       show: () => this.ellipses(),
     },
   };
-
-  constructor() {
-    window.myTest = this.myTest;
-  }
 }

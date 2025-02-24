@@ -1,9 +1,15 @@
-import { Component, OnInit, ViewEncapsulation } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  inject,
+  OnInit,
+  output,
+  ViewEncapsulation,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import '@arcgis/map-components/dist/components/arcgis-map';
 import '@arcgis/map-components/dist/components/arcgis-zoom';
 import '@arcgis/map-components/dist/components/arcgis-basemap-gallery';
-import { promiseHook } from '../promise.hook';
 import Map from '@arcgis/core/Map';
 import MapView from '@arcgis/core/views/MapView.js';
 import Basemap from '@arcgis/core/Basemap';
@@ -12,25 +18,28 @@ import Basemap from '@arcgis/core/Basemap';
   selector: 'lib-map',
   standalone: true,
   imports: [CommonModule],
-  templateUrl: './map.component.html',
+  template: '<ng-content />',
   styleUrl: './map.component.css',
   schemas: [],
   encapsulation: ViewEncapsulation.None,
 })
 export class LibMapComponent implements OnInit {
-  viewReady = promiseHook<MapView>();
+  viewClick = output<__esri.ViewClickEvent>();
+  elementRef = inject(ElementRef);
 
   map = new Map({
     basemap: new Basemap(),
   });
 
+  view = new MapView({
+    map: this.map, // References a Map instance
+    center: [34.89, 31.77],
+    zoom: 7,
+    ui: { components: [] },
+    container: this.elementRef.nativeElement,
+  });
+
   ngOnInit(): void {
-    const view = new MapView({
-      map: this.map, // References a Map instance
-      container: 'viewDiv',
-      center: [34.89, 31.77],
-      zoom: 7,
-    });
-    this.viewReady.resolve(view);
+    this.view.on('click', (e) => this.viewClick.emit(e));
   }
 }

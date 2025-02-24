@@ -43,3 +43,8 @@ export const fillGreenSymbol = new SimpleFillSymbol({
   color: [0, 255, 0, 0.1],
   outline: { color: [0, 255, 0], width: '1px' },
 });
+
+export const fillBlueSymbol = new SimpleFillSymbol({
+  color: [0, 0, 255, 0.1],
+  outline: { color: [0, 0, 255], width: '1px' },
+});

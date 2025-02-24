@@ -37,6 +37,5 @@ export class SectorComponent extends GraphicComponent {
     const { firstChange, currentValue } = changes['sector'];
     this.updateGraphic(currentValue);
     if (firstChange) return this.add();
-    this.update();
   }
 }

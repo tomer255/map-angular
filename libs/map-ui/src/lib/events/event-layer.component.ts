@@ -1,12 +1,4 @@
-import {
-  Component,
-  ElementRef,
-  Host,
-  inject,
-  OnDestroy,
-  OnInit,
-} from '@angular/core';
-import { LibMapComponent } from '../map/map.component';
+import { Component } from '@angular/core';
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer';
 import UniqueValueRenderer from '@arcgis/core/renderers/UniqueValueRenderer';
 import LabelClass from '@arcgis/core/layers/support/LabelClass';
@@ -30,6 +22,8 @@ export class EventsLayerComponent extends FeatureLayerComponent {
   featureReductionCluster = new FeatureReductionCluster({
     clusterRadius: 100,
     symbol: greenMarkerSymbol,
+    clusterMaxSize: 24,
+    clusterMinSize: 24,
     labelingInfo: [
       {
         labelExpressionInfo: {
@@ -81,7 +75,7 @@ export class EventsLayerComponent extends FeatureLayerComponent {
     }),
   });
 
-  classter(show: boolean) {
+  setClasster(show: boolean) {
     if (show) this.layer.featureReduction = this.featureReductionCluster;
     else this.layer.featureReduction = this.featureReductionSelection; // undefined as any;
   }
