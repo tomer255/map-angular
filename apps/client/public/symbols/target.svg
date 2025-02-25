@@ -2,7 +2,6 @@
 <svg
   xmlns="http://www.w3.org/2000/svg"
   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-  id="svg12417"
   viewBox="0 0 24 24"
   version="1.1"
 >
@@ -13,6 +12,4 @@
     <line x1="50%" y1="5%" x2="50%" y2="95%" stroke-width="0.6" stroke-linecap="round" />
     <line x1="5%" y1="50%" x2="95%" y2="50%" stroke-width="0.6" stroke-linecap="round" />
   </g>
-
-
 </svg>
