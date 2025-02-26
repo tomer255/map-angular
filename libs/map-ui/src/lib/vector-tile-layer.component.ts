@@ -28,6 +28,6 @@ export class VectorTileLayerComponent implements OnInit {
   ngOnInit(): void {
     this.vectorTileLayer.url = this.url();
     this.vectorTileLayer.title = this.title();
-    this.parent.map.layers.add(this.vectorTileLayer);
+    this.parent.map.basemap.baseLayers.add(this.vectorTileLayer);
   }
 }
