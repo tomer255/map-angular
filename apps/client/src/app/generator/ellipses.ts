@@ -10,6 +10,7 @@ function generat(): Ellipse {
     xSemiAxis: randomNamber(3, 10),
     ySemiAxis: randomNamber(3, 10),
     angle: randomNamber(0, 360),
+    time: new Date(),
   };
 }
 

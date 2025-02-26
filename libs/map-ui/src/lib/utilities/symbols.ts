@@ -20,6 +20,11 @@ export const greenMarkerSymbol = new SimpleMarkerSymbol({
   size: 24,
 });
 
+export const buleMarkerSymbol = new SimpleMarkerSymbol({
+  color: 'bule',
+  size: 24,
+});
+
 export const labelSymbol = new TextSymbol({
   haloColor: '#FFF',
   haloSize: 1,
@@ -47,4 +52,9 @@ export const fillGreenSymbol = new SimpleFillSymbol({
 export const fillBlueSymbol = new SimpleFillSymbol({
   color: [0, 0, 255, 0.1],
   outline: { color: [0, 0, 255], width: '1px' },
+});
+
+export const fillBlackSymbol = new SimpleFillSymbol({
+  color: [0, 0, 0, 0.1],
+  outline: { color: [0, 0, 0], width: '1px' },
 });
