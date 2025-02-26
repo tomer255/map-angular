@@ -1,13 +1,8 @@
-import {
-  Component,
-  Host,
-  input,
-  OnChanges,
-  SimpleChanges,
-} from '@angular/core';
+import { Component, Host, input, OnChanges } from '@angular/core';
 import Point from '@arcgis/core/geometry/Point';
 import { FeatureComponent } from '../feature/feature.component';
 import { EventsLayerComponent } from './event-layer.component';
+import { SimpleChangesTyped } from '../utilities/types';
 export type Sector = {
   id: string;
   xCenter: number;
@@ -49,8 +44,8 @@ export class EventComponent extends FeatureComponent implements OnChanges {
     this.graphic.attributes = event;
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    const { firstChange, currentValue } = changes['event'];
+  ngOnChanges(changes: SimpleChangesTyped<EventComponent>): void {
+    const { firstChange, currentValue } = changes.event;
     this.updateGraphic(currentValue);
     if (firstChange) return this.add();
     this.update();

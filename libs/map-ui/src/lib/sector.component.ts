@@ -5,6 +5,7 @@ import FillSymbol from '@arcgis/core/symbols/FillSymbol';
 import { GraphicComponent } from './graphic/graphic.component';
 import { Sector } from './events/event.component';
 import { GraphicsLayerComponent } from './graphic/graphics-layer.component';
+import { SimpleChangesTyped } from './utilities/types';
 
 @Component({
   selector: 'sector',
@@ -33,8 +34,8 @@ export class SectorComponent extends GraphicComponent {
     this.graphic.symbol = this.symbol();
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    const { firstChange, currentValue } = changes['sector'];
+  ngOnChanges(changes: SimpleChangesTyped<SectorComponent>): void {
+    const { firstChange, currentValue } = changes.sector;
     this.updateGraphic(currentValue);
     if (firstChange) return this.add();
   }

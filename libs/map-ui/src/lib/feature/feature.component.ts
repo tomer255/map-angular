@@ -1,4 +1,4 @@
-import { Component, Host, OnDestroy, OnInit } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import Graphic from '@arcgis/core/Graphic';
 import { FeatureLayerComponent } from './feature-layer.component';
 

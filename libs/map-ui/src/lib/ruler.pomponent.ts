@@ -41,10 +41,12 @@ export class RulerComponent extends GraphicsLayerComponent {
     this.lastPoint.geometry = new Point();
     this.line.geometry = new Polyline({ paths: [[]] });
     this.length.set(0);
+    this.layer.visible = false;
   }
 
   addPoint(point: Point) {
     const test = point.clone();
+    this.layer.visible = true;
     test.x = test.longitude;
     test.y = test.latitude;
     this.line.geometry = (this.line.geometry as Polyline)

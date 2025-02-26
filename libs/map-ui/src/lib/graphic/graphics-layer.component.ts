@@ -1,11 +1,4 @@
-import {
-  Component,
-  ElementRef,
-  Host,
-  inject,
-  OnDestroy,
-  OnInit,
-} from '@angular/core';
+import { Component, Host, OnDestroy, OnInit } from '@angular/core';
 import { LibMapComponent } from '../map/map.component';
 import GraphicsLayer from '@arcgis/core/layers/GraphicsLayer';
 

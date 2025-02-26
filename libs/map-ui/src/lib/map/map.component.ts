@@ -7,9 +7,6 @@ import {
   ViewEncapsulation,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import '@arcgis/map-components/dist/components/arcgis-map';
-import '@arcgis/map-components/dist/components/arcgis-zoom';
-import '@arcgis/map-components/dist/components/arcgis-basemap-gallery';
 import Map from '@arcgis/core/Map';
 import MapView from '@arcgis/core/views/MapView.js';
 import Basemap from '@arcgis/core/Basemap';

@@ -48,8 +48,8 @@ export class EllipseComponent extends GraphicComponent {
     this.graphic.symbol = fillRedSymbol;
   }
 
-  ngOnChanges(changes: SimpleChanges): void {
-    const { firstChange, currentValue } = changes['ellipse'];
+  ngOnChanges(changes: SimpleChangesTyped<EllipseComponent>): void {
+    const { firstChange, currentValue } = changes.ellipse;
     this.updateGraphic(currentValue);
     if (firstChange) {
       this.add();
