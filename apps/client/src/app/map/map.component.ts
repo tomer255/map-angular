@@ -20,6 +20,8 @@ import Point from '@arcgis/core/geometry/Point';
 import Extent from '@arcgis/core/geometry/Extent.js';
 import { getEllipses } from '../generator/ellipses';
 import { getEvents } from '../generator/events';
+import SpatialReference from '@arcgis/core/geometry/SpatialReference.js';
+import * as projection from '@arcgis/core/geometry/projection.js';
 
 type BaseLayer = {
   url: string;
@@ -62,10 +64,14 @@ export class AppMapComponent {
     (window as any).vis = this.vis;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).myTest = this.myTest;
+    projection.load();
   }
 
   viewClick(event: __esri.ViewClickEvent) {
-    const point = event.mapPoint;
+    const point = projection.project(
+      event.mapPoint,
+      SpatialReference.WGS84
+    ) as Point;
     if (!this.rulerActive()?.nativeElement.checked) return;
     this.ruler()?.addPoint(point);
   }
