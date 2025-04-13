@@ -1,25 +1,22 @@
-import { Component, Host, OnDestroy, OnInit } from '@angular/core';
-import { LibMapComponent } from '../map/map.component';
-import GraphicsLayer from '@arcgis/core/layers/GraphicsLayer';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
+import { MapService } from '../map/map.service';
+import { GraphicLayerService } from './graphic.service';
 
 @Component({
   selector: 'graphics-layer',
   standalone: true,
   imports: [],
   template: '<ng-content />',
+  providers: [GraphicLayerService],
 })
 export class GraphicsLayerComponent implements OnInit, OnDestroy {
-  layer = new GraphicsLayer();
-  parent: LibMapComponent;
-
-  constructor(@Host() parent: LibMapComponent) {
-    this.parent = parent;
-  }
+  mapService = inject(MapService);
+  graphicLayerService = inject(GraphicLayerService);
 
   ngOnInit() {
-    this.parent.map.add(this.layer);
+    this.mapService.map.add(this.graphicLayerService.layer);
   }
   ngOnDestroy() {
-    this.parent.map.remove(this.layer);
+    this.mapService.map.remove(this.graphicLayerService.layer);
   }
 }

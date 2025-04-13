@@ -14,7 +14,10 @@ import {
   fillRedSymbol,
   fillGreenSymbol,
   fillYellowSymbol,
-  RulerComponent,
+  ForceLayerComponent,
+  ForceComponent,
+  Force,
+  MapPinComponent,
 } from '@map-angular/map-ui';
 import Point from '@arcgis/core/geometry/Point';
 import Extent from '@arcgis/core/geometry/Extent.js';
@@ -22,6 +25,7 @@ import { getEllipses } from '../generator/ellipses';
 import { getEvents } from '../generator/events';
 import SpatialReference from '@arcgis/core/geometry/SpatialReference.js';
 import * as projection from '@arcgis/core/geometry/projection.js';
+// import { getforces } from '../generator/forces';
 
 type BaseLayer = {
   url: string;
@@ -39,10 +43,12 @@ type BaseLayer = {
     EllipseComponent,
     EventsLayerComponent,
     EventComponent,
+    ForceLayerComponent,
+    ForceComponent,
     VectorTileLayerComponent,
     GraphicsLayerComponent,
     SectorComponent,
-    RulerComponent,
+    MapPinComponent,
   ],
   templateUrl: './map.component.html',
   styleUrl: './map.component.scss',
@@ -51,9 +57,8 @@ type BaseLayer = {
 export class AppMapComponent {
   libMap = viewChild(LibMapComponent);
   eventsLayer = viewChild(EventsLayerComponent);
-  ruler = viewChild(RulerComponent);
   rulerActive = viewChild<ElementRef<HTMLInputElement>>('rulerActive');
-  vis = signal<boolean>(true);
+  eventVisible = signal<boolean>(true);
 
   fillRedSymbol = fillRedSymbol;
   fillGreenSymbol = fillGreenSymbol;
@@ -61,19 +66,18 @@ export class AppMapComponent {
 
   constructor() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (window as any).vis = this.vis;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).myTest = this.myTest;
     projection.load();
   }
 
+  pinLoc = signal<{ x: number; y: number } | undefined>(undefined);
   viewClick(event: __esri.ViewClickEvent) {
     const point = projection.project(
       event.mapPoint,
       SpatialReference.WGS84
     ) as Point;
+    this.pinLoc.set({ x: point.x, y: point.y });
     if (!this.rulerActive()?.nativeElement.checked) return;
-    this.ruler()?.addPoint(point);
   }
 
   parseInt = parseInt;
@@ -83,14 +87,21 @@ export class AppMapComponent {
     this.eventsLayer()?.setClasster(checkbox.checked);
   }
 
+  changeEventVisible(event: Event) {
+    const checkbox = event.target as HTMLInputElement;
+    this.eventVisible.set(checkbox.checked);
+  }
+
   events = signal<MapEvent[]>([]);
 
   ellipses = signal<Ellipse[]>([]);
 
+  forces = signal<Force[]>([]); //getforces(25)
+
   baseLayers = signal<BaseLayer[]>([
     {
       url: 'https://cdn.arcgis.com/sharing/rest/content/items/7dc6cea0b1764a1f9af2e679f642f0f5/resources/styles/root.json',
-      title: 'A',
+      title: 'layer-A',
       visible: true,
     },
     {

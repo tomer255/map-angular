@@ -1,7 +1,14 @@
-import { Component, Host, OnDestroy, OnInit } from '@angular/core';
-import { LibMapComponent } from '../map/map.component';
+import {
+  Component,
+  inject,
+  input,
+  OnChanges,
+  OnDestroy,
+  SimpleChanges,
+} from '@angular/core';
 import FeatureLayer from '@arcgis/core/layers/FeatureLayer';
 import Graphic from '@arcgis/core/Graphic';
+import { MapService } from '../map/map.service';
 
 @Component({
   selector: 'feature-layer',
@@ -9,15 +16,16 @@ import Graphic from '@arcgis/core/Graphic';
   imports: [],
   template: '<ng-content />',
 })
-export class FeatureLayerComponent implements OnInit, OnDestroy {
+export class FeatureLayerComponent implements OnDestroy, OnChanges {
+  visible = input<boolean>(true);
   layer = new FeatureLayer({
     spatialReference: { wkid: 4326 },
     title: 'feature-layer',
     source: [],
     fields: [],
   });
-  parent: LibMapComponent;
   timerId: number;
+  mapService = inject(MapService);
 
   features: {
     addFeatures: Graphic[];
@@ -29,8 +37,8 @@ export class FeatureLayerComponent implements OnInit, OnDestroy {
     deleteFeatures: [],
   };
 
-  constructor(@Host() parent: LibMapComponent) {
-    this.parent = parent;
+  constructor() {
+    this.mapService.map.add(this.layer);
     this.timerId = setInterval(() => {
       this.layer.applyEdits(this.features);
       this.features = {
@@ -41,12 +49,13 @@ export class FeatureLayerComponent implements OnInit, OnDestroy {
     }, 100);
   }
 
-  ngOnInit(): void {
-    this.parent.map.add(this.layer);
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['visible'])
+      this.layer.visible = changes['visible'].currentValue;
   }
 
   ngOnDestroy(): void {
     clearInterval(this.timerId);
-    this.parent.map.remove(this.layer);
+    this.mapService.map.remove(this.layer);
   }
 }

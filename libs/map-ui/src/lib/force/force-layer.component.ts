@@ -3,26 +3,21 @@ import FeatureLayer from '@arcgis/core/layers/FeatureLayer';
 import UniqueValueRenderer from '@arcgis/core/renderers/UniqueValueRenderer';
 import LabelClass from '@arcgis/core/layers/support/LabelClass';
 import Field from '@arcgis/core/layers/support/Field.js';
-import {
-  chemicalSymbol,
-  greenMarkerSymbol,
-  labelSymbol,
-  cim,
-} from '../utilities/symbols';
+import { labelSymbol, buleMarkerSymbol } from '../utilities/symbols';
 import FeatureReductionCluster from '@arcgis/core/layers/support/FeatureReductionCluster.js';
 import FeatureReductionSelection from '@arcgis/core/layers/support/FeatureReductionSelection';
 import { FeatureLayerComponent } from '../feature/feature-layer.component';
-
+import PictureMarkerSymbol from '@arcgis/core/symbols/PictureMarkerSymbol';
 @Component({
-  selector: 'events-layer',
+  selector: 'forces-layer',
   standalone: true,
   imports: [],
   template: '<ng-content />',
 })
-export class EventsLayerComponent extends FeatureLayerComponent {
+export class ForceLayerComponent extends FeatureLayerComponent {
   featureReductionCluster = new FeatureReductionCluster({
     clusterRadius: 100,
-    symbol: greenMarkerSymbol,
+    symbol: buleMarkerSymbol,
     clusterMaxSize: 24,
     clusterMinSize: 24,
     labelingInfo: [
@@ -39,16 +34,24 @@ export class EventsLayerComponent extends FeatureLayerComponent {
   featureReductionSelection = new FeatureReductionSelection();
   override layer = new FeatureLayer({
     spatialReference: { wkid: 4326 },
-    title: 'events-layer',
+    title: 'forces-layer',
     source: [],
     fields: [
       new Field({ name: 'id', type: 'oid' }),
-      new Field({ name: 'status', type: 'string' }),
       new Field({ name: 'name', type: 'string' }),
+      new Field({ name: 'type', type: 'string' }),
+      new Field({ name: 'level', type: 'string' }),
     ],
     objectIdField: 'id',
     geometryType: 'point',
     labelingInfo: [
+      new LabelClass({
+        labelExpressionInfo: {
+          expression: '$feature.level',
+        },
+        labelPlacement: 'above-center',
+        symbol: labelSymbol,
+      }),
       new LabelClass({
         labelExpressionInfo: {
           expression: '$feature.name',
@@ -58,19 +61,26 @@ export class EventsLayerComponent extends FeatureLayerComponent {
       }),
     ],
     renderer: new UniqueValueRenderer({
-      field: 'status',
-      defaultSymbol: greenMarkerSymbol,
-      legendOptions: { title: 'bla' },
+      field: 'type',
+      defaultSymbol: buleMarkerSymbol,
       uniqueValueInfos: [
         {
-          label: 'Red Type Symbol',
-          symbol: cim,
+          label: 'force type 1',
           value: '1',
+          symbol: new PictureMarkerSymbol({
+            url: 'symbols/force-type-1.svg',
+            width: 36,
+            height: 24,
+          }),
         },
         {
-          label: 'Blue Type Symbol',
-          symbol: chemicalSymbol,
+          label: 'force type 2',
           value: '2',
+          symbol: new PictureMarkerSymbol({
+            url: 'symbols/force-type-2.svg',
+            width: 36,
+            height: 24,
+          }),
         },
       ],
     }),
@@ -78,6 +88,6 @@ export class EventsLayerComponent extends FeatureLayerComponent {
 
   setClasster(show: boolean) {
     if (show) this.layer.featureReduction = this.featureReductionCluster;
-    else this.layer.featureReduction = this.featureReductionSelection; // undefined as any;
+    else this.layer.featureReduction = this.featureReductionSelection;
   }
 }

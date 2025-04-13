@@ -1,7 +1,13 @@
-import { Component, effect, Host, input, OnInit } from '@angular/core';
+import {
+  Component,
+  inject,
+  input,
+  OnChanges,
+  SimpleChanges,
+} from '@angular/core';
 import { CommonModule } from '@angular/common';
 import VectorTileLayer from '@arcgis/core/layers/VectorTileLayer';
-import { LibMapComponent } from './map/map.component';
+import { MapService } from './map/map.service';
 
 @Component({
   selector: 'vector-tile-layer',
@@ -10,24 +16,23 @@ import { LibMapComponent } from './map/map.component';
   template: '<ng-content/>',
   schemas: [],
 })
-export class VectorTileLayerComponent implements OnInit {
-  parent: LibMapComponent;
+export class VectorTileLayerComponent implements OnChanges {
   url = input.required<string>();
   title = input.required<string>();
   visible = input.required<boolean>();
+  mapService = inject(MapService);
 
   vectorTileLayer = new VectorTileLayer();
 
-  constructor(@Host() parent: LibMapComponent) {
-    this.parent = parent;
-    effect(() => {
-      this.vectorTileLayer.visible = this.visible();
-    });
+  constructor() {
+    this.mapService.map.basemap.baseLayers.add(this.vectorTileLayer);
   }
 
-  ngOnInit(): void {
-    this.vectorTileLayer.url = this.url();
-    this.vectorTileLayer.title = this.title();
-    this.parent.map.basemap.baseLayers.add(this.vectorTileLayer);
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['url']) this.vectorTileLayer.url = changes['url'].currentValue;
+    if (changes['title'])
+      this.vectorTileLayer.title = changes['title'].currentValue;
+    if (changes['visible'])
+      this.vectorTileLayer.visible = changes['visible'].currentValue;
   }
 }

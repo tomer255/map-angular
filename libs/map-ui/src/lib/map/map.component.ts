@@ -7,9 +7,7 @@ import {
   ViewEncapsulation,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import Map from '@arcgis/core/Map';
-import MapView from '@arcgis/core/views/MapView.js';
-import Basemap from '@arcgis/core/Basemap';
+import { MapService } from './map.service';
 
 @Component({
   selector: 'lib-map',
@@ -18,23 +16,17 @@ import Basemap from '@arcgis/core/Basemap';
   template: '<ng-content />',
   styleUrl: './map.component.css',
   schemas: [],
+  providers: [MapService],
   encapsulation: ViewEncapsulation.None,
 })
 export class LibMapComponent implements OnInit {
   viewClick = output<__esri.ViewClickEvent>();
   elementRef = inject(ElementRef);
+  mapService = inject(MapService);
 
-  map = new Map({
-    basemap: new Basemap(),
-  });
+  map = this.mapService.map;
 
-  view = new MapView({
-    map: this.map, // References a Map instance
-    center: [34.89, 31.77],
-    zoom: 7,
-    ui: { components: [] },
-    container: this.elementRef.nativeElement,
-  });
+  view = this.mapService.view;
 
   ngOnInit(): void {
     this.view.on('click', (e) => this.viewClick.emit(e));

@@ -4,7 +4,7 @@ import { genRandomPoint, oneOf, randomNamber } from './utilities.js';
 function generate(): Event {
   const coordinate = genRandomPoint();
   return {
-    id: crypto.randomUUID(),
+    id: (Math.random() * 10000).toFixed(0), //crypto.randomUUID(),
     coordinate,
     status: oneOf('1', '2'),
     name: `אירוע ${oneOf('שריפה', 'דקירה', 'פיצוץ', 'תאונה')} ${oneOf(
@@ -15,7 +15,7 @@ function generate(): Event {
     )}`,
     riskAssessments: {
       immediate: {
-        id: crypto.randomUUID(),
+        id: (Math.random() * 10000).toFixed(0), //crypto.randomUUID(),
         bearing1: randomNamber(0, 360),
         bearing2: randomNamber(0, 360),
         radius: randomNamber(2, 5),
@@ -23,7 +23,7 @@ function generate(): Event {
         yCenter: coordinate.y,
       },
       imminent: {
-        id: crypto.randomUUID(),
+        id: (Math.random() * 10000).toFixed(0), //crypto.randomUUID(),
         bearing1: randomNamber(0, 360),
         bearing2: randomNamber(0, 360),
         radius: randomNamber(1, 3),
@@ -31,7 +31,7 @@ function generate(): Event {
         yCenter: coordinate.y,
       },
       possible: {
-        id: crypto.randomUUID(),
+        id: (Math.random() * 10000).toFixed(0), //crypto.randomUUID(),
         bearing1: randomNamber(0, 360),
         bearing2: randomNamber(0, 360),
         radius: randomNamber(3, 10),

@@ -1,13 +1,12 @@
 import {
   Directive,
   ElementRef,
-  Host,
   inject,
   input,
   OnDestroy,
   OnInit,
 } from '@angular/core';
-import { LibMapComponent } from '../map/map.component';
+import { MapService } from '../map/map.service';
 
 type UIAddPosition =
   | 'bottom-leading'
@@ -26,20 +25,16 @@ type UIAddPosition =
 })
 export class MapWidgetDirective implements OnInit, OnDestroy {
   position = input.required<UIAddPosition>();
-  parent: LibMapComponent;
   elementRef = inject(ElementRef);
-
-  constructor(@Host() parent: LibMapComponent) {
-    this.parent = parent;
-  }
+  mapService = inject(MapService);
 
   ngOnInit() {
-    this.parent.view.ui.add(this.elementRef.nativeElement, {
+    this.mapService.view.ui.add(this.elementRef.nativeElement, {
       position: this.position(),
     });
   }
 
   ngOnDestroy() {
-    this.parent.view.ui.remove(this.elementRef.nativeElement);
+    this.mapService.view.ui.remove(this.elementRef.nativeElement);
   }
 }

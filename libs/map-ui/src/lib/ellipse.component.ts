@@ -66,12 +66,7 @@ export class EllipseComponent extends GraphicComponent {
   }
 
   ngOnChanges(changes: SimpleChangesTyped<EllipseComponent>): void {
-    const { firstChange, currentValue } = changes.ellipse;
-    this.updateGraphic(currentValue);
-    if (firstChange) {
-      this.add();
-      return;
-    }
+    if (changes.ellipse) this.updateGraphic(changes.ellipse.currentValue);
   }
 
   override ngOnDestroy(): void {

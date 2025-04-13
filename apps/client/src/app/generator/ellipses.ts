@@ -4,7 +4,7 @@ import { genRandomPoint, randomNamber } from './utilities.js';
 function generat(): Ellipse {
   const { x, y } = genRandomPoint();
   return {
-    id: crypto.randomUUID(),
+    id: (Math.random() * 10000).toFixed(0), //crypto.randomUUID(),
     xCenter: x,
     yCenter: y,
     xSemiAxis: randomNamber(3, 10),

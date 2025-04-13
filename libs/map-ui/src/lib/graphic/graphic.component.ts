@@ -1,6 +1,6 @@
-import { Component, Host, OnDestroy } from '@angular/core';
+import { Component, inject, OnDestroy, OnInit } from '@angular/core';
 import Graphic from '@arcgis/core/Graphic';
-import { GraphicsLayerComponent } from './graphics-layer.component';
+import { GraphicLayerService } from './graphic.service';
 
 @Component({
   selector: 'feature',
@@ -8,22 +8,22 @@ import { GraphicsLayerComponent } from './graphics-layer.component';
   imports: [],
   template: '<ng-content />',
 })
-export class GraphicComponent implements OnDestroy {
-  parent: GraphicsLayerComponent;
+export class GraphicComponent implements OnDestroy, OnInit {
+  graphicLayerService = inject(GraphicLayerService);
   graphic = new Graphic();
 
-  constructor(@Host() parent: GraphicsLayerComponent) {
-    this.parent = parent;
-  }
-
   add() {
-    this.parent.layer.add(this.graphic);
+    this.graphicLayerService.layer.add(this.graphic);
   }
 
   update() {}
 
   delete() {
-    this.parent.layer.remove(this.graphic);
+    this.graphicLayerService.layer.remove(this.graphic);
+  }
+
+  ngOnInit(): void {
+    this.add();
   }
 
   ngOnDestroy() {

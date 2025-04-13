@@ -58,3 +58,27 @@ export const fillBlackSymbol = new SimpleFillSymbol({
   color: [0, 0, 0, 0.1],
   outline: { color: [0, 0, 0], width: '1px' },
 });
+
+import CIMSymbol from '@arcgis/core/symbols/CIMSymbol.js';
+export const cim = new CIMSymbol({
+  data: {
+    type: 'CIMSymbolReference',
+    symbol: {
+      type: 'CIMPointSymbol',
+      symbolLayers: [
+        {
+          type: 'CIMPictureMarker',
+          enable: true,
+          url: 'symbols/map-pin.svg',
+          size: 24,
+        },
+        {
+          type: 'CIMPictureMarker',
+          enable: true,
+          url: 'symbols/inferno.svg',
+          size: 24,
+        },
+      ],
+    },
+  },
+});
