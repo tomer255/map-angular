@@ -24,7 +24,8 @@ lib-map {
     background-color: transparent;
     border-radius: var(--border-radius);
     transition: all 250ms linear;
-    &:hover {
+    &:hover,
+    &.active {
       color: var(--background-color);
       background-color: var(--primary-color);
     }

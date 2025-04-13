@@ -1,5 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import SketchModel from '@arcgis/core/widgets/Sketch/SketchViewModel';
+import { MapService } from '../map/map.service';
+import { GraphicLayerService } from '../graphic/graphic.service';
+import { SketchService } from './sketch.service';
 
 @Component({
   selector: 'sketch',
@@ -8,5 +11,12 @@ import SketchModel from '@arcgis/core/widgets/Sketch/SketchViewModel';
   template: '<ng-content />',
 })
 export class SketchComponent {
-  sketchModel = new SketchModel();
+  mapService = inject(MapService);
+  graphicLayerService = inject(GraphicLayerService);
+  sketchService = inject(SketchService);
+
+  constructor() {
+    this.sketchService.sketchModel.view = this.mapService.view;
+    this.sketchService.sketchModel.layer = this.graphicLayerService.layer;
+  }
 }

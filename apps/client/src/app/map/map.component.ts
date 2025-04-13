@@ -1,23 +1,18 @@
-import { Component, ElementRef, signal, viewChild } from '@angular/core';
+import { Component, signal, viewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import {
   LibMapComponent,
   MapWidgetDirective,
   Event as MapEvent,
-  EllipseComponent,
   Ellipse,
   EventsLayerComponent,
-  EventComponent,
   VectorTileLayerComponent,
   GraphicsLayerComponent,
-  SectorComponent,
   fillRedSymbol,
   fillGreenSymbol,
   fillYellowSymbol,
-  ForceLayerComponent,
-  ForceComponent,
   Force,
-  MapPinComponent,
+  SketchComponent,
 } from '@map-angular/map-ui';
 import Point from '@arcgis/core/geometry/Point';
 import Extent from '@arcgis/core/geometry/Extent.js';
@@ -25,7 +20,7 @@ import { getEllipses } from '../generator/ellipses';
 import { getEvents } from '../generator/events';
 import SpatialReference from '@arcgis/core/geometry/SpatialReference.js';
 import * as projection from '@arcgis/core/geometry/projection.js';
-// import { getforces } from '../generator/forces';
+import { SketchUiComponent } from './sketch-ui/sketch-ui.component';
 
 type BaseLayer = {
   url: string;
@@ -40,15 +35,10 @@ type BaseLayer = {
     CommonModule,
     LibMapComponent,
     MapWidgetDirective,
-    EllipseComponent,
-    EventsLayerComponent,
-    EventComponent,
-    ForceLayerComponent,
-    ForceComponent,
     VectorTileLayerComponent,
     GraphicsLayerComponent,
-    SectorComponent,
-    MapPinComponent,
+    SketchComponent,
+    SketchUiComponent,
   ],
   templateUrl: './map.component.html',
   styleUrl: './map.component.scss',
@@ -57,13 +47,10 @@ type BaseLayer = {
 export class AppMapComponent {
   libMap = viewChild(LibMapComponent);
   eventsLayer = viewChild(EventsLayerComponent);
-  rulerActive = viewChild<ElementRef<HTMLInputElement>>('rulerActive');
   eventVisible = signal<boolean>(true);
-
   fillRedSymbol = fillRedSymbol;
   fillGreenSymbol = fillGreenSymbol;
   fillYellowSymbol = fillYellowSymbol;
-
   constructor() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).myTest = this.myTest;
@@ -77,10 +64,7 @@ export class AppMapComponent {
       SpatialReference.WGS84
     ) as Point;
     this.pinLoc.set({ x: point.x, y: point.y });
-    if (!this.rulerActive()?.nativeElement.checked) return;
   }
-
-  parseInt = parseInt;
 
   changeEventClasster(event: Event) {
     const checkbox = event.target as HTMLInputElement;

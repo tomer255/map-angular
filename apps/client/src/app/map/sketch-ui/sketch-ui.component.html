@@ -1,0 +1,75 @@
+<div>
+  <h2>create</h2>
+  <button
+    [class.active]="sketchService.sketchModel.activeTool === 'circle'"
+    (click)="sketchService.sketchModel.create('circle')"
+  >
+    circle
+  </button>
+  <button
+    [class.active]="sketchService.sketchModel.activeTool === 'polyline'"
+    (click)="sketchService.sketchModel.create('polyline')"
+  >
+    polyline
+  </button>
+  <button
+    [class.active]="sketchService.sketchModel.activeTool === 'polygon'"
+    (click)="sketchService.sketchModel.create('polygon')"
+  >
+    polygon
+  </button>
+  <button
+    [class.active]="sketchService.sketchModel.activeTool === 'rectangle'"
+    (click)="sketchService.sketchModel.create('rectangle')"
+  >
+    rectangle
+  </button>
+  <button
+    [class.active]="sketchService.sketchModel.activeTool === 'multipoint'"
+    (click)="sketchService.sketchModel.create('multipoint')"
+  >
+    multipoint
+  </button>
+  <hr />
+  <h2>colors</h2>
+  <h4>fill</h4>
+  <label>
+    <span>Color: </span>
+    <input
+      (change)="fillColorChange($event)"
+      type="color"
+      [value]="sketchService.fillColor"
+    />
+  </label>
+  <br />
+  <label>
+    <span>Opacity: </span>
+    <input
+      (change)="fillOpacityChange($event)"
+      type="range"
+      min="0"
+      step="0.1"
+      max="1"
+    />
+  </label>
+  <h4>Outline</h4>
+  <label>
+    <span>Color: </span>
+    <input
+      (change)="outlineColorChange($event)"
+      type="color"
+      [value]="sketchService.outlineColor"
+    />
+  </label>
+  <br />
+  <label>
+    <span>Opacity: </span>
+    <input
+      (change)="outlineOpacityChange($event)"
+      type="range"
+      min="0"
+      step="0.1"
+      max="1"
+    />
+  </label>
+</div>

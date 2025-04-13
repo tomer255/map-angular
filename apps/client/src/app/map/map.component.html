@@ -1,5 +1,5 @@
 <lib-map (viewClick)="viewClick($event)">
-  <div libMapWidget position="top-right" class="widget">
+  <!-- <div libMapWidget position="top-right" class="widget">
     <span>view</span>
     <button (click)="myTest.view.reset()">reset view</button>
     <hr />
@@ -34,17 +34,20 @@
       </button>
     </div>
     <button (click)="myTest.ellipses.clear()">clear all ellipses</button>
-  </div>
+  </div> -->
 
   <div libMapWidget position="top-right" class="widget">
-    <button>עגול</button>
+    <app-sketch-ui />
   </div>
   <vector-tile-layer
     url="https://cdn.arcgis.com/sharing/rest/content/items/7dc6cea0b1764a1f9af2e679f642f0f5/resources/styles/root.json"
     title="my-Vector"
     [visible]="true"
   />
-  <graphics-layer> </graphics-layer>
+  <graphics-layer>
+    <sketch />
+  </graphics-layer>
+  <!--   
   <graphics-layer>
     @for (event of events(); track event.id) {
     <sector
@@ -79,5 +82,5 @@
   </forces-layer>
   <graphics-layer>
     <map-pin [location]="pinLoc()" />
-  </graphics-layer>
+  </graphics-layer> -->
 </lib-map>
