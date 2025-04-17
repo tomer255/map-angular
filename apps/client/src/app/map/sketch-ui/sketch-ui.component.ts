@@ -36,4 +36,12 @@ export class SketchUiComponent {
     const opacity = target.valueAsNumber;
     this.sketchService.outlineOpacity = opacity;
   }
+
+  save() {
+    const x = this.sketchService.sketchModel.layer.graphics.map((g) =>
+      g.toJSON()
+    );
+
+    console.log(x);
+  }
 }

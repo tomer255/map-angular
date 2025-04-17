@@ -13,6 +13,8 @@ import {
   fillYellowSymbol,
   Force,
   SketchComponent,
+  TextComponent,
+  EllipseComponent,
 } from '@map-angular/map-ui';
 import Point from '@arcgis/core/geometry/Point';
 import Extent from '@arcgis/core/geometry/Extent.js';
@@ -39,6 +41,8 @@ type BaseLayer = {
     GraphicsLayerComponent,
     SketchComponent,
     SketchUiComponent,
+    EllipseComponent,
+    TextComponent,
   ],
   templateUrl: './map.component.html',
   styleUrl: './map.component.scss',
@@ -56,6 +60,16 @@ export class AppMapComponent {
     (window as any).myTest = this.myTest;
     projection.load();
   }
+
+  textEllip: Ellipse = {
+    id: '1',
+    xCenter: 34.571301850212,
+    yCenter: 31.663686968807415,
+    xSemiAxis: 50,
+    ySemiAxis: 20,
+    angle: 45,
+    time: new Date(),
+  };
 
   pinLoc = signal<{ x: number; y: number } | undefined>(undefined);
   viewClick(event: __esri.ViewClickEvent) {

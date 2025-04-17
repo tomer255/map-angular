@@ -20,20 +20,37 @@ export class SketchService {
     updateOnGraphicClick: true,
   });
 
+  updateMapper: {
+    [key in __esri.SketchViewModelUpdateEvent['state']]: (
+      event: __esri.SketchViewModelUpdateEvent
+    ) => void;
+  } = {
+    start: (event) => {
+      console.log(event);
+      const graphic = event.graphics[0];
+      console.log(this.sketchModel.polygonSymbol.color);
+
+      if (graphic.symbol instanceof SimpleFillSymbol) {
+        this.sketchModel.polygonSymbol.color.r = graphic.symbol.color.r;
+        this.sketchModel.polygonSymbol.color.g = graphic.symbol.color.g;
+        this.sketchModel.polygonSymbol.color.b = graphic.symbol.color.b;
+      }
+    },
+    active: (event) => {
+      console.log(event);
+    },
+    complete: (event) => {
+      console.log(event);
+    },
+  };
+
   constructor() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     (window as any).SketchService = this;
     this.sketchModel.on(
       'update',
       (event: __esri.SketchViewModelUpdateEvent) => {
-        if (event.state == 'start') {
-          const graphic = event.graphics[0];
-          if (graphic.symbol instanceof SimpleFillSymbol) {
-            this.sketchModel.polygonSymbol.color.r = graphic.symbol.color.r;
-            this.sketchModel.polygonSymbol.color.g = graphic.symbol.color.g;
-            this.sketchModel.polygonSymbol.color.b = graphic.symbol.color.b;
-          }
-        }
+        this.updateMapper[event.state](event);
       }
     );
   }

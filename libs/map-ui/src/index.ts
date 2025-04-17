@@ -8,6 +8,7 @@ export * from './lib/sketch/sketch.component';
 export * from './lib/sketch/sketch.service';
 
 export * from './lib/ellipse.component';
+export * from './lib/text.component';
 
 export * from './lib/sector.component';
 export * from './lib/map-pin.component';
