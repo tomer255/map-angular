@@ -1,5 +1,4 @@
 import { Component, inject } from '@angular/core';
-import SketchModel from '@arcgis/core/widgets/Sketch/SketchViewModel';
 import { MapService } from '../map/map.service';
 import { GraphicLayerService } from '../graphic/graphic.service';
 import { SketchService } from './sketch.service';

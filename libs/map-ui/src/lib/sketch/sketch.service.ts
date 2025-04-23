@@ -1,11 +1,13 @@
-import { Injectable } from '@angular/core';
+import { Injectable, OnDestroy } from '@angular/core';
 import SimpleFillSymbol from '@arcgis/core/symbols/SimpleFillSymbol';
 import SketchModel from '@arcgis/core/widgets/Sketch/SketchViewModel';
 
 @Injectable({
   providedIn: 'root',
 })
-export class SketchService {
+export class SketchService implements OnDestroy {
+  updateHandle: IHandle;
+  createHandle: IHandle;
   sketchModel = new SketchModel({
     pointSymbol: { type: 'simple-marker' },
     polygonSymbol: { type: 'simple-fill' },
@@ -26,33 +28,81 @@ export class SketchService {
     ) => void;
   } = {
     start: (event) => {
-      console.log(event);
       const graphic = event.graphics[0];
-      console.log(this.sketchModel.polygonSymbol.color);
 
-      if (graphic.symbol instanceof SimpleFillSymbol) {
-        this.sketchModel.polygonSymbol.color.r = graphic.symbol.color.r;
-        this.sketchModel.polygonSymbol.color.g = graphic.symbol.color.g;
-        this.sketchModel.polygonSymbol.color.b = graphic.symbol.color.b;
+      this.sketchModel.polygonSymbol.color = graphic.symbol.color.clone();
+      if (
+        this.sketchModel.polygonSymbol instanceof SimpleFillSymbol &&
+        graphic.symbol instanceof SimpleFillSymbol
+      ) {
+        this.sketchModel.polygonSymbol.outline.color =
+          graphic.symbol.outline.color.clone();
       }
     },
-    active: (event) => {
-      console.log(event);
+    active: () => {
+      // console.log(event);
     },
-    complete: (event) => {
-      console.log(event);
+    complete: () => {
+      // console.log(event);
+    },
+  };
+
+  createMapper: {
+    [key in __esri.SketchViewModelCreateEvent['state']]: (
+      event: __esri.SketchViewModelCreateEvent
+    ) => void;
+  } = {
+    start: () => {
+      // console.log(event);
+    },
+    active: () => {
+      // console.log(event);
+    },
+    complete: () => {
+      this.sketchModel.layer.graphics = this.sketchModel.layer.graphics.map(
+        (g) => g.clone()
+      );
+    },
+    cancel: () => {
+      // console.log(event);
     },
   };
 
   constructor() {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    (window as any).SketchService = this;
-    this.sketchModel.on(
+    (window as any).sketchService = this;
+    this.updateHandle = this.sketchModel.on(
       'update',
       (event: __esri.SketchViewModelUpdateEvent) => {
         this.updateMapper[event.state](event);
       }
     );
+    this.createHandle = this.sketchModel.on(
+      'create',
+      (event: __esri.SketchViewModelCreateEvent) => {
+        this.createMapper[event.state](event);
+      }
+    );
+  }
+  ngOnDestroy(): void {
+    this.updateHandle.remove();
+    this.createHandle.remove();
+  }
+
+  create(
+    tool:
+      | 'point'
+      | 'multipoint'
+      | 'polyline'
+      | 'polygon'
+      | 'rectangle'
+      | 'circle'
+  ) {
+    if (this.sketchModel.activeTool == tool) {
+      this.sketchModel.cancel();
+      return;
+    }
+    this.sketchModel.create(tool);
   }
 
   hexToRGB(hex: string) {
@@ -78,6 +128,12 @@ export class SketchService {
     this.sketchModel.polygonSymbol.color.r = r;
     this.sketchModel.polygonSymbol.color.g = g;
     this.sketchModel.polygonSymbol.color.b = b;
+
+    this.sketchModel.updateGraphics.forEach((graphic) => {
+      graphic.symbol.color.r = r;
+      graphic.symbol.color.g = g;
+      graphic.symbol.color.b = b;
+    });
   }
 
   get fillOpacity() {
@@ -86,6 +142,9 @@ export class SketchService {
 
   set fillOpacity(opacity: number) {
     this.sketchModel.polygonSymbol.color.a = opacity;
+    this.sketchModel.updateGraphics.forEach((graphic) => {
+      graphic.symbol.color.a = opacity;
+    });
   }
 
   get outlineColor() {
@@ -101,6 +160,13 @@ export class SketchService {
       this.sketchModel.polygonSymbol.outline.color.r = r;
       this.sketchModel.polygonSymbol.outline.color.g = g;
       this.sketchModel.polygonSymbol.outline.color.b = b;
+      this.sketchModel.updateGraphics.forEach((graphic) => {
+        if (graphic.symbol instanceof SimpleFillSymbol) {
+          graphic.symbol.outline.color.r = r;
+          graphic.symbol.outline.color.g = g;
+          graphic.symbol.outline.color.b = b;
+        }
+      });
     }
   }
 
@@ -113,5 +179,10 @@ export class SketchService {
   set outlineOpacity(opacity: number) {
     if (this.sketchModel.polygonSymbol instanceof SimpleFillSymbol)
       this.sketchModel.polygonSymbol.outline.color.a = opacity;
+
+    this.sketchModel.updateGraphics.forEach((graphic) => {
+      if (graphic.symbol instanceof SimpleFillSymbol)
+        graphic.symbol.outline.color.a = opacity;
+    });
   }
 }

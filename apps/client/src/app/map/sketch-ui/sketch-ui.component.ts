@@ -1,6 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { SketchService } from '@map-angular/map-ui';
+import Graphic from '@arcgis/core/Graphic';
+import Collection from '@arcgis/core/core/Collection.js';
 
 @Component({
   selector: 'app-sketch-ui',
@@ -38,10 +40,20 @@ export class SketchUiComponent {
   }
 
   save() {
-    const x = this.sketchService.sketchModel.layer.graphics.map((g) =>
-      g.toJSON()
+    const graphics = JSON.stringify(
+      this.sketchService.sketchModel.layer.graphics
+        .toArray()
+        .map((g) => g.toJSON())
     );
+    localStorage.setItem('graphics', graphics);
+  }
 
-    console.log(x);
+  laod() {
+    const str = localStorage.getItem('graphics');
+    if (!str) return;
+    const graphics = JSON.parse(str) as any[];
+    this.sketchService.sketchModel.layer.graphics = new Collection(
+      graphics.map((data) => Graphic.fromJSON(data))
+    );
   }
 }

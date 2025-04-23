@@ -1,0 +1,8 @@
+.buttons {
+  display: flex;
+  flex-direction: column;
+}
+
+button.active {
+  border: 2px dotted red;
+}
