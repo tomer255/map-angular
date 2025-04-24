@@ -39,6 +39,11 @@ export class SketchUiComponent {
     this.sketchService.outlineOpacity = opacity;
   }
 
+  setWidth(event: Event) {
+    const target = event.target as HTMLInputElement;
+    this.sketchService.width = target.valueAsNumber;
+  }
+
   save() {
     const graphics = JSON.stringify(
       this.sketchService.sketchModel.layer.graphics
@@ -51,6 +56,7 @@ export class SketchUiComponent {
   laod() {
     const str = localStorage.getItem('graphics');
     if (!str) return;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const graphics = JSON.parse(str) as any[];
     this.sketchService.sketchModel.layer.graphics = new Collection(
       graphics.map((data) => Graphic.fromJSON(data))

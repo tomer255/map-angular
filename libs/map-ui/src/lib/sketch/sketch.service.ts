@@ -1,6 +1,9 @@
-import { Injectable, OnDestroy } from '@angular/core';
-import SimpleFillSymbol from '@arcgis/core/symbols/SimpleFillSymbol';
+import { Injectable, OnDestroy, signal } from '@angular/core';
+import FillSymbol from '@arcgis/core/symbols/FillSymbol';
+import LineSymbol from '@arcgis/core/symbols/LineSymbol';
 import SketchModel from '@arcgis/core/widgets/Sketch/SketchViewModel';
+
+type Tool = 'polyline' | 'polygon' | 'rectangle' | 'circle' | 'freehand';
 
 @Injectable({
   providedIn: 'root',
@@ -14,6 +17,7 @@ export class SketchService implements OnDestroy {
     polylineSymbol: { type: 'simple-line' },
     defaultCreateOptions: {
       mode: 'hybrid',
+      preserveAspectRatio: false,
     },
     defaultUpdateOptions: {
       toggleToolOnClick: false,
@@ -29,14 +33,23 @@ export class SketchService implements OnDestroy {
   } = {
     start: (event) => {
       const graphic = event.graphics[0];
-
-      this.sketchModel.polygonSymbol.color = graphic.symbol.color.clone();
       if (
-        this.sketchModel.polygonSymbol instanceof SimpleFillSymbol &&
-        graphic.symbol instanceof SimpleFillSymbol
+        graphic.symbol instanceof FillSymbol &&
+        this.sketchModel.polygonSymbol instanceof FillSymbol
+      ) {
+        this.sketchModel.polygonSymbol.color = graphic.symbol.color;
+        this.sketchModel.polygonSymbol.outline.color =
+          graphic.symbol.outline.color;
+      }
+      if (graphic.symbol instanceof LineSymbol) {
+        this.sketchModel.polylineSymbol.color = graphic.symbol.color;
+      }
+      if (
+        this.sketchModel.polygonSymbol instanceof FillSymbol &&
+        graphic.symbol instanceof FillSymbol
       ) {
         this.sketchModel.polygonSymbol.outline.color =
-          graphic.symbol.outline.color.clone();
+          graphic.symbol.outline.color;
       }
     },
     active: () => {
@@ -59,11 +72,13 @@ export class SketchService implements OnDestroy {
       // console.log(event);
     },
     complete: () => {
+      this.activeTool.set(null);
       this.sketchModel.layer.graphics = this.sketchModel.layer.graphics.map(
         (g) => g.clone()
       );
     },
     cancel: () => {
+      this.activeTool.set(null);
       // console.log(event);
     },
   };
@@ -89,20 +104,28 @@ export class SketchService implements OnDestroy {
     this.createHandle.remove();
   }
 
-  create(
-    tool:
-      | 'point'
-      | 'multipoint'
-      | 'polyline'
-      | 'polygon'
-      | 'rectangle'
-      | 'circle'
-  ) {
-    if (this.sketchModel.activeTool == tool) {
+  activeTool = signal<Tool | null>(null);
+
+  create(tool: Tool) {
+    if (this.activeTool() == tool) {
       this.sketchModel.cancel();
       return;
     }
-    this.sketchModel.create(tool);
+    this.activeTool.set(tool);
+    switch (tool) {
+      case 'circle':
+      case 'polygon':
+      case 'polyline':
+      case 'rectangle':
+        this.sketchModel.create(tool);
+        break;
+      case 'freehand':
+        this.sketchModel.create('polyline', { mode: 'freehand' });
+        break;
+
+      default:
+        break;
+    }
   }
 
   hexToRGB(hex: string) {
@@ -130,9 +153,11 @@ export class SketchService implements OnDestroy {
     this.sketchModel.polygonSymbol.color.b = b;
 
     this.sketchModel.updateGraphics.forEach((graphic) => {
-      graphic.symbol.color.r = r;
-      graphic.symbol.color.g = g;
-      graphic.symbol.color.b = b;
+      if (graphic.symbol instanceof FillSymbol) {
+        graphic.symbol.color.r = r;
+        graphic.symbol.color.g = g;
+        graphic.symbol.color.b = b;
+      }
     });
   }
 
@@ -143,46 +168,88 @@ export class SketchService implements OnDestroy {
   set fillOpacity(opacity: number) {
     this.sketchModel.polygonSymbol.color.a = opacity;
     this.sketchModel.updateGraphics.forEach((graphic) => {
-      graphic.symbol.color.a = opacity;
+      if (graphic.symbol instanceof FillSymbol)
+        graphic.symbol.color.a = opacity;
     });
   }
 
   get outlineColor() {
-    if (this.sketchModel.polygonSymbol instanceof SimpleFillSymbol) {
+    if (this.sketchModel.polygonSymbol instanceof FillSymbol) {
       return this.RGBToHex(this.sketchModel.polygonSymbol.outline.color);
     }
     return '#000000';
   }
 
   set outlineColor(hex: string) {
-    if (this.sketchModel.polygonSymbol instanceof SimpleFillSymbol) {
-      const { r, g, b } = this.hexToRGB(hex);
+    const { r, g, b } = this.hexToRGB(hex);
+    if (this.sketchModel.polygonSymbol instanceof FillSymbol) {
       this.sketchModel.polygonSymbol.outline.color.r = r;
       this.sketchModel.polygonSymbol.outline.color.g = g;
       this.sketchModel.polygonSymbol.outline.color.b = b;
-      this.sketchModel.updateGraphics.forEach((graphic) => {
-        if (graphic.symbol instanceof SimpleFillSymbol) {
-          graphic.symbol.outline.color.r = r;
-          graphic.symbol.outline.color.g = g;
-          graphic.symbol.outline.color.b = b;
-        }
-      });
     }
+
+    this.sketchModel.polylineSymbol.color.r = r;
+    this.sketchModel.polylineSymbol.color.g = g;
+    this.sketchModel.polylineSymbol.color.b = b;
+
+    this.sketchModel.updateGraphics.forEach((graphic) => {
+      if (graphic.symbol instanceof FillSymbol) {
+        graphic.symbol.outline.color.r = r;
+        graphic.symbol.outline.color.g = g;
+        graphic.symbol.outline.color.b = b;
+      }
+      if (graphic.symbol instanceof LineSymbol) {
+        graphic.symbol.color.r = r;
+        graphic.symbol.color.g = g;
+        graphic.symbol.color.b = b;
+      }
+    });
   }
 
   get outlineOpacity() {
-    if (this.sketchModel.polygonSymbol instanceof SimpleFillSymbol)
-      return this.sketchModel.polygonSymbol.outline.color.a;
-    return 0;
+    return this.sketchModel.polylineSymbol.color.a;
   }
 
   set outlineOpacity(opacity: number) {
-    if (this.sketchModel.polygonSymbol instanceof SimpleFillSymbol)
+    if (this.sketchModel.polygonSymbol instanceof FillSymbol)
       this.sketchModel.polygonSymbol.outline.color.a = opacity;
 
     this.sketchModel.updateGraphics.forEach((graphic) => {
-      if (graphic.symbol instanceof SimpleFillSymbol)
+      if (graphic.symbol instanceof FillSymbol)
         graphic.symbol.outline.color.a = opacity;
     });
+
+    this.sketchModel.updateGraphics.forEach((graphic) => {
+      if (graphic.symbol instanceof FillSymbol) {
+        graphic.symbol.outline.color.a = opacity;
+      }
+      if (graphic.symbol instanceof LineSymbol) {
+        graphic.symbol.color.a = opacity;
+      }
+    });
+  }
+
+  set width(width: number) {
+    if (this.sketchModel.polylineSymbol instanceof LineSymbol)
+      this.sketchModel.polylineSymbol.width = width;
+    if (this.sketchModel.polygonSymbol instanceof FillSymbol)
+      this.sketchModel.polygonSymbol.outline.width = width;
+
+    this.sketchModel.updateGraphics.forEach((graphic) => {
+      if (graphic.symbol instanceof FillSymbol) {
+        graphic.symbol.outline.width = width;
+      }
+      if (graphic.symbol instanceof LineSymbol) {
+        graphic.symbol.width = width;
+      }
+    });
+  }
+
+  get width() {
+    if (this.sketchModel.polylineSymbol instanceof LineSymbol)
+      return this.sketchModel.polylineSymbol.width;
+    if (this.sketchModel.polygonSymbol instanceof FillSymbol)
+      return this.sketchModel.polygonSymbol.outline.width;
+    return 0.7;
   }
 }
