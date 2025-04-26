@@ -2,6 +2,7 @@ import { Injectable, OnDestroy, signal } from '@angular/core';
 import FillSymbol from '@arcgis/core/symbols/FillSymbol';
 import LineSymbol from '@arcgis/core/symbols/LineSymbol';
 import SketchModel from '@arcgis/core/widgets/Sketch/SketchViewModel';
+import Color from '@arcgis/core/Color';
 
 type Tool = 'polyline' | 'polygon' | 'rectangle' | 'circle' | 'freehand';
 
@@ -33,23 +34,24 @@ export class SketchService implements OnDestroy {
   } = {
     start: (event) => {
       const graphic = event.graphics[0];
-      if (
-        graphic.symbol instanceof FillSymbol &&
-        this.sketchModel.polygonSymbol instanceof FillSymbol
-      ) {
-        this.sketchModel.polygonSymbol.color = graphic.symbol.color;
-        this.sketchModel.polygonSymbol.outline.color =
-          graphic.symbol.outline.color;
+      if (graphic.symbol instanceof FillSymbol) {
+        for (const symbol of this.newOutlines) {
+          symbol.width = graphic.symbol.outline.width;
+          symbol.color = graphic.symbol.outline.color;
+        }
+        for (const symbol of this.newFills) {
+          symbol.color = graphic.symbol.color;
+        }
       }
+
       if (graphic.symbol instanceof LineSymbol) {
-        this.sketchModel.polylineSymbol.color = graphic.symbol.color;
-      }
-      if (
-        this.sketchModel.polygonSymbol instanceof FillSymbol &&
-        graphic.symbol instanceof FillSymbol
-      ) {
-        this.sketchModel.polygonSymbol.outline.color =
-          graphic.symbol.outline.color;
+        for (const symbol of this.newOutlines) {
+          symbol.width = graphic.symbol.width;
+          symbol.color = graphic.symbol.color;
+        }
+        for (const symbol of this.newFills) {
+          symbol.outline.color = graphic.symbol.color;
+        }
       }
     },
     active: () => {
@@ -79,7 +81,6 @@ export class SketchService implements OnDestroy {
     },
     cancel: () => {
       this.activeTool.set(null);
-      // console.log(event);
     },
   };
 
@@ -128,36 +129,75 @@ export class SketchService implements OnDestroy {
     }
   }
 
-  hexToRGB(hex: string) {
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    if (!result) throw Error();
-    const [, r, g, b] = result.map((i) => parseInt(i, 16));
-    return { r, g, b };
+  private get newOutlines() {
+    const result: LineSymbol[] = [];
+    if (this.sketchModel.polygonSymbol instanceof FillSymbol) {
+      result.push(this.sketchModel.polygonSymbol.outline);
+    }
+    if (this.sketchModel.polylineSymbol instanceof LineSymbol)
+      result.push(this.sketchModel.polylineSymbol);
+    return result;
   }
 
-  RGBToHex({ r, g, b }: { r: number; g: number; b: number }) {
-    return (
-      '#' +
-      [r, g, b].map((number) => number.toString(16).padStart(2, '0')).join('')
-    );
-  }
-
-  get fillColor() {
-    return this.RGBToHex(this.sketchModel.polygonSymbol.color);
-  }
-
-  set fillColor(hex: string) {
-    const { r, g, b } = this.hexToRGB(hex);
-    this.sketchModel.polygonSymbol.color.r = r;
-    this.sketchModel.polygonSymbol.color.g = g;
-    this.sketchModel.polygonSymbol.color.b = b;
+  private get outlines() {
+    const result: LineSymbol[] = this.newOutlines;
 
     this.sketchModel.updateGraphics.forEach((graphic) => {
       if (graphic.symbol instanceof FillSymbol) {
-        graphic.symbol.color.r = r;
-        graphic.symbol.color.g = g;
-        graphic.symbol.color.b = b;
+        result.push(graphic.symbol.outline);
       }
+      if (graphic.symbol instanceof LineSymbol) {
+        result.push(graphic.symbol);
+      }
+    });
+    return result;
+  }
+
+  private get newFills() {
+    const result: FillSymbol[] = [];
+    if (this.sketchModel.polygonSymbol instanceof FillSymbol)
+      result.push(this.sketchModel.polygonSymbol);
+    return result;
+  }
+
+  private get fills() {
+    const result: FillSymbol[] = this.newFills;
+    for (const graphic of this.sketchModel.updateGraphics)
+      if (graphic.symbol instanceof FillSymbol) result.push(graphic.symbol);
+
+    return result;
+  }
+
+  get fillColorHex() {
+    return this.sketchModel.polygonSymbol.color.toHex();
+  }
+
+  set fillColorHex(hex: string) {
+    const { r, g, b } = new Color(hex);
+    this.fillColor = { r, g, b };
+  }
+
+  get outlineColorHex() {
+    if (this.sketchModel.polygonSymbol instanceof FillSymbol) {
+      return this.sketchModel.polygonSymbol.outline.color.toHex();
+    }
+    return '#000000';
+  }
+
+  set outlineColorHex(hex: string) {
+    const { r, g, b } = new Color(hex);
+    this.outlineColor = { r, g, b };
+  }
+
+  get fillColor() {
+    return this.sketchModel.polygonSymbol.color;
+  }
+
+  set fillColor({ r, g, b }: { r: number; g: number; b: number }) {
+    this.fills.forEach((symbol) => {
+      symbol.color.r = r;
+      symbol.color.g = g;
+      symbol.color.b = b;
     });
   }
 
@@ -166,43 +206,23 @@ export class SketchService implements OnDestroy {
   }
 
   set fillOpacity(opacity: number) {
-    this.sketchModel.polygonSymbol.color.a = opacity;
-    this.sketchModel.updateGraphics.forEach((graphic) => {
-      if (graphic.symbol instanceof FillSymbol)
-        graphic.symbol.color.a = opacity;
+    this.fills.forEach((symbol) => {
+      symbol.color.a = opacity;
     });
   }
 
   get outlineColor() {
     if (this.sketchModel.polygonSymbol instanceof FillSymbol) {
-      return this.RGBToHex(this.sketchModel.polygonSymbol.outline.color);
+      return this.sketchModel.polygonSymbol.outline.color;
     }
-    return '#000000';
+    return new Color('#000000');
   }
 
-  set outlineColor(hex: string) {
-    const { r, g, b } = this.hexToRGB(hex);
-    if (this.sketchModel.polygonSymbol instanceof FillSymbol) {
-      this.sketchModel.polygonSymbol.outline.color.r = r;
-      this.sketchModel.polygonSymbol.outline.color.g = g;
-      this.sketchModel.polygonSymbol.outline.color.b = b;
-    }
-
-    this.sketchModel.polylineSymbol.color.r = r;
-    this.sketchModel.polylineSymbol.color.g = g;
-    this.sketchModel.polylineSymbol.color.b = b;
-
-    this.sketchModel.updateGraphics.forEach((graphic) => {
-      if (graphic.symbol instanceof FillSymbol) {
-        graphic.symbol.outline.color.r = r;
-        graphic.symbol.outline.color.g = g;
-        graphic.symbol.outline.color.b = b;
-      }
-      if (graphic.symbol instanceof LineSymbol) {
-        graphic.symbol.color.r = r;
-        graphic.symbol.color.g = g;
-        graphic.symbol.color.b = b;
-      }
+  set outlineColor({ r, g, b }: { r: number; g: number; b: number }) {
+    this.outlines.forEach((symbol) => {
+      symbol.color.r = r;
+      symbol.color.g = g;
+      symbol.color.b = b;
     });
   }
 
@@ -211,37 +231,14 @@ export class SketchService implements OnDestroy {
   }
 
   set outlineOpacity(opacity: number) {
-    if (this.sketchModel.polygonSymbol instanceof FillSymbol)
-      this.sketchModel.polygonSymbol.outline.color.a = opacity;
-
-    this.sketchModel.updateGraphics.forEach((graphic) => {
-      if (graphic.symbol instanceof FillSymbol)
-        graphic.symbol.outline.color.a = opacity;
-    });
-
-    this.sketchModel.updateGraphics.forEach((graphic) => {
-      if (graphic.symbol instanceof FillSymbol) {
-        graphic.symbol.outline.color.a = opacity;
-      }
-      if (graphic.symbol instanceof LineSymbol) {
-        graphic.symbol.color.a = opacity;
-      }
+    this.outlines.forEach((symbol) => {
+      symbol.color.a = opacity;
     });
   }
 
   set width(width: number) {
-    if (this.sketchModel.polylineSymbol instanceof LineSymbol)
-      this.sketchModel.polylineSymbol.width = width;
-    if (this.sketchModel.polygonSymbol instanceof FillSymbol)
-      this.sketchModel.polygonSymbol.outline.width = width;
-
-    this.sketchModel.updateGraphics.forEach((graphic) => {
-      if (graphic.symbol instanceof FillSymbol) {
-        graphic.symbol.outline.width = width;
-      }
-      if (graphic.symbol instanceof LineSymbol) {
-        graphic.symbol.width = width;
-      }
+    this.outlines.forEach((symbol) => {
+      symbol.width = width;
     });
   }
 

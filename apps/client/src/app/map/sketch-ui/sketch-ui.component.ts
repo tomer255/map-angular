@@ -18,7 +18,7 @@ export class SketchUiComponent {
   fillColorChange(event: Event) {
     const target = event.target as HTMLInputElement;
     const hex = target.value;
-    this.sketchService.fillColor = hex;
+    this.sketchService.fillColorHex = hex;
   }
 
   fillOpacityChange(event: Event) {
@@ -30,7 +30,7 @@ export class SketchUiComponent {
   outlineColorChange(event: Event) {
     const target = event.target as HTMLInputElement;
     const hex = target.value;
-    this.sketchService.outlineColor = hex;
+    this.sketchService.outlineColorHex = hex;
   }
 
   outlineOpacityChange(event: Event) {
