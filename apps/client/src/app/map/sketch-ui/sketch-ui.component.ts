@@ -44,6 +44,21 @@ export class SketchUiComponent {
     this.sketchService.width = target.valueAsNumber;
   }
 
+  setText(event: Event) {
+    const target = event.target as HTMLInputElement;
+    this.sketchService.text = target.value;
+  }
+
+  setFontSize(event: Event) {
+    const target = event.target as HTMLInputElement;
+    this.sketchService.fontSize = target.valueAsNumber;
+  }
+
+  textColorChange(event: Event) {
+    const target = event.target as HTMLInputElement;
+    this.sketchService.TextColorHex = target.value;
+  }
+
   save() {
     const graphics = JSON.stringify(
       this.sketchService.sketchModel.layer.graphics

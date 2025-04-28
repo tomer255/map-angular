@@ -3,8 +3,15 @@ import FillSymbol from '@arcgis/core/symbols/FillSymbol';
 import LineSymbol from '@arcgis/core/symbols/LineSymbol';
 import SketchModel from '@arcgis/core/widgets/Sketch/SketchViewModel';
 import Color from '@arcgis/core/Color';
+import TextSymbol from '@arcgis/core/symbols/TextSymbol';
 
-type Tool = 'polyline' | 'polygon' | 'rectangle' | 'circle' | 'freehand';
+type Tool =
+  | 'text'
+  | 'polyline'
+  | 'polygon'
+  | 'rectangle'
+  | 'circle'
+  | 'freehand';
 
 @Injectable({
   providedIn: 'root',
@@ -13,19 +20,32 @@ export class SketchService implements OnDestroy {
   updateHandle: IHandle;
   createHandle: IHandle;
   sketchModel = new SketchModel({
-    pointSymbol: { type: 'simple-marker' },
+    pointSymbol: { type: 'text', text: 'text' },
     polygonSymbol: { type: 'simple-fill' },
     polylineSymbol: { type: 'simple-line' },
     defaultCreateOptions: {
       mode: 'hybrid',
       preserveAspectRatio: false,
+      hasZ: true,
     },
     defaultUpdateOptions: {
       toggleToolOnClick: false,
       tool: 'transform',
+      multipleSelectionEnabled: false,
     },
     updateOnGraphicClick: true,
+    snappingOptions: { enabled: true },
   });
+
+  forceUpdateGraphics() {
+    const oldGraphics = this.sketchModel.updateGraphics.at(0);
+    const index = this.sketchModel.layer.graphics.findIndex(
+      (g) => g === oldGraphics
+    );
+    this.sketchModel.layer.graphics = this.sketchModel.layer.graphics.clone();
+    const newGraphics = this.sketchModel.layer.graphics.at(index);
+    this.sketchModel.update(newGraphics);
+  }
 
   updateMapper: {
     [key in __esri.SketchViewModelUpdateEvent['state']]: (
@@ -53,6 +73,13 @@ export class SketchService implements OnDestroy {
           symbol.outline.color = graphic.symbol.color;
         }
       }
+
+      if (graphic.symbol instanceof TextSymbol) {
+        if (this.sketchModel.pointSymbol instanceof TextSymbol) {
+          this.sketchModel.pointSymbol.text = graphic.symbol.text;
+          this.sketchModel.pointSymbol.font.size = graphic.symbol.font.size;
+        }
+      }
     },
     active: () => {
       // console.log(event);
@@ -75,9 +102,7 @@ export class SketchService implements OnDestroy {
     },
     complete: () => {
       this.activeTool.set(null);
-      this.sketchModel.layer.graphics = this.sketchModel.layer.graphics.map(
-        (g) => g.clone()
-      );
+      this.forceUpdateGraphics();
     },
     cancel: () => {
       this.activeTool.set(null);
@@ -122,6 +147,9 @@ export class SketchService implements OnDestroy {
         break;
       case 'freehand':
         this.sketchModel.create('polyline', { mode: 'freehand' });
+        break;
+      case 'text':
+        this.sketchModel.create('point');
         break;
 
       default:
@@ -240,6 +268,7 @@ export class SketchService implements OnDestroy {
     this.outlines.forEach((symbol) => {
       symbol.width = width;
     });
+    this.forceUpdateGraphics();
   }
 
   get width() {
@@ -248,5 +277,59 @@ export class SketchService implements OnDestroy {
     if (this.sketchModel.polygonSymbol instanceof FillSymbol)
       return this.sketchModel.polygonSymbol.outline.width;
     return 0.7;
+  }
+
+  private get texts() {
+    const result: TextSymbol[] = [];
+    for (const graphic of this.sketchModel.updateGraphics)
+      if (graphic.symbol instanceof TextSymbol) result.push(graphic.symbol);
+    return result;
+  }
+
+  get text() {
+    if (this.sketchModel.pointSymbol instanceof TextSymbol)
+      return this.sketchModel.pointSymbol.text;
+    return 'text';
+  }
+
+  set text(text: string) {
+    if (this.sketchModel.pointSymbol instanceof TextSymbol)
+      this.sketchModel.pointSymbol.text = text;
+    for (const textSymbol of this.texts) {
+      textSymbol.text = text;
+    }
+    this.forceUpdateGraphics();
+  }
+
+  set fontSize(fontSize: number) {
+    if (this.sketchModel.pointSymbol instanceof TextSymbol)
+      this.sketchModel.pointSymbol.font.size = fontSize;
+    for (const textSymbol of this.texts) {
+      textSymbol.font.size = fontSize;
+    }
+    this.forceUpdateGraphics();
+  }
+
+  get fontSize() {
+    if (this.sketchModel.pointSymbol instanceof TextSymbol)
+      return this.sketchModel.pointSymbol.font.size;
+    return 12;
+  }
+
+  get TextColorHex() {
+    return this.sketchModel.pointSymbol.color.toHex();
+  }
+
+  set TextColorHex(hex: string) {
+    this.TextColor = new Color(hex);
+  }
+
+  set TextColor({ r, g, b }: { r: number; g: number; b: number }) {
+    // if (this.sketchModel.pointSymbol instanceof TextSymbol)
+    this.sketchModel.pointSymbol.color = new Color({ r, g, b });
+    for (const textSymbol of this.texts) {
+      textSymbol.color = new Color({ r, g, b });
+    }
+    this.forceUpdateGraphics();
   }
 }

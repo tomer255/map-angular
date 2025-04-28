@@ -89,4 +89,37 @@
       />
     </label>
   </details>
+  <details>
+    <summary>Text</summary>
+    <div class="buttons">
+      <button
+        [class.active]="sketchService.activeTool() === 'text'"
+        (click)="sketchService.create('text')"
+      >
+        text
+      </button>
+    </div>
+    <br />
+    <label>
+      Text: <input [value]="sketchService.text" (change)="setText($event)" />
+    </label>
+    <br />
+    <label>
+      Font Size:
+      <input
+        type="number"
+        [value]="sketchService.fontSize"
+        (change)="setFontSize($event)"
+      />
+    </label>
+    <br />
+    <label>
+      <span>Text Color: </span>
+      <input
+        (change)="textColorChange($event)"
+        type="color"
+        [value]="sketchService.fillColor"
+      />
+    </label>
+  </details>
 </div>
