@@ -37,18 +37,18 @@
 
   <hr />
   <details>
-    <summary>Symbols</summary>
+    <summary>Fill</summary>
     <label>
-      <span>Fill Color: </span>
+      <span>Color: </span>
       <input
         (change)="fillColorChange($event)"
         type="color"
-        [value]="sketchService.fillColor"
+        [value]="sketchService.fillColorHex"
       />
     </label>
     <br />
     <label>
-      <span>Fill Opacity: </span>
+      <span>Opacity: </span>
       <input
         (change)="fillOpacityChange($event)"
         [value]="sketchService.fillOpacity"
@@ -58,18 +58,20 @@
         max="1"
       />
     </label>
-    <br />
+  </details>
+  <details>
+    <summary>Outline</summary>
     <label>
-      <span>Outline Color: </span>
+      <span>Color: </span>
       <input
         (change)="outlineColorChange($event)"
         type="color"
-        [value]="sketchService.outlineColor"
+        [value]="sketchService.outlineColorHex"
       />
     </label>
     <br />
     <label>
-      <span>Outline Opacity: </span>
+      <span>Opacity: </span>
       <input
         (change)="outlineOpacityChange($event)"
         [value]="sketchService.outlineOpacity"
@@ -121,5 +123,8 @@
         [value]="sketchService.fillColor"
       />
     </label>
+  </details>
+  <details>
+    <summary>Line</summary>
   </details>
 </div>

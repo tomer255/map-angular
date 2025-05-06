@@ -4,6 +4,8 @@ import LineSymbol from '@arcgis/core/symbols/LineSymbol';
 import SketchModel from '@arcgis/core/widgets/Sketch/SketchViewModel';
 import Color from '@arcgis/core/Color';
 import TextSymbol from '@arcgis/core/symbols/TextSymbol';
+// import { arrow } from './arrows';
+// import { CIMSymbol } from '@arcgis/core/symbols';
 
 type Tool =
   | 'text'
@@ -22,14 +24,14 @@ export class SketchService implements OnDestroy {
   sketchModel = new SketchModel({
     pointSymbol: { type: 'text', text: 'text' },
     polygonSymbol: { type: 'simple-fill' },
+    // polylineSymbol: arrow,
     polylineSymbol: { type: 'simple-line' },
     defaultCreateOptions: {
       mode: 'hybrid',
       preserveAspectRatio: false,
-      hasZ: true,
     },
     defaultUpdateOptions: {
-      toggleToolOnClick: false,
+      // toggleToolOnClick: false,
       tool: 'transform',
       multipleSelectionEnabled: false,
     },
@@ -43,6 +45,7 @@ export class SketchService implements OnDestroy {
       (g) => g === oldGraphics
     );
     this.sketchModel.layer.graphics = this.sketchModel.layer.graphics.clone();
+    if (index == -1) return;
     const newGraphics = this.sketchModel.layer.graphics.at(index);
     this.sketchModel.update(newGraphics);
   }
@@ -227,6 +230,7 @@ export class SketchService implements OnDestroy {
       symbol.color.g = g;
       symbol.color.b = b;
     });
+    this.forceUpdateGraphics();
   }
 
   get fillOpacity() {
@@ -237,6 +241,7 @@ export class SketchService implements OnDestroy {
     this.fills.forEach((symbol) => {
       symbol.color.a = opacity;
     });
+    this.forceUpdateGraphics();
   }
 
   get outlineColor() {
@@ -252,6 +257,7 @@ export class SketchService implements OnDestroy {
       symbol.color.g = g;
       symbol.color.b = b;
     });
+    this.forceUpdateGraphics();
   }
 
   get outlineOpacity() {
@@ -262,6 +268,7 @@ export class SketchService implements OnDestroy {
     this.outlines.forEach((symbol) => {
       symbol.color.a = opacity;
     });
+    this.forceUpdateGraphics();
   }
 
   set width(width: number) {
@@ -325,8 +332,8 @@ export class SketchService implements OnDestroy {
   }
 
   set TextColor({ r, g, b }: { r: number; g: number; b: number }) {
-    // if (this.sketchModel.pointSymbol instanceof TextSymbol)
-    this.sketchModel.pointSymbol.color = new Color({ r, g, b });
+    if (this.sketchModel.pointSymbol instanceof TextSymbol)
+      this.sketchModel.pointSymbol.color = new Color({ r, g, b });
     for (const textSymbol of this.texts) {
       textSymbol.color = new Color({ r, g, b });
     }
