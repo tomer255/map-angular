@@ -154,7 +154,7 @@
         [value]="sketchService.outlineColor"
       />
     </label>
-    <hr />
+    <br />
     <label>
       <span>Size: </span>
       <input (change)="lienSizeChange($event)" type="number" />
@@ -164,10 +164,14 @@
     <summary>Icons</summary>
     <div class="icon-grid">
       @for (src of icons; track $index) {
-      <button class="create-icon" (click)="sketchService.create('icon')">
+      <button class="create-icon" (click)="selectIcon(src)">
         <img [src]="src" />
       </button>
       }
     </div>
+    <label>
+      <span>Text:</span>
+      <input (change)="selectIconText($event)" />
+    </label>
   </details>
 </div>

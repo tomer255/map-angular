@@ -11,11 +11,8 @@ import {
   setLineStroke,
   StrokeOption,
 } from './CIMLine';
-import {
-  CIMSymbol,
-  SimpleFillSymbol,
-  SimpleMarkerSymbol,
-} from '@arcgis/core/symbols';
+import { CIMSymbol, SimpleFillSymbol } from '@arcgis/core/symbols';
+import { CIMPoint, setPointIcon, setPointText } from './CIMPoint';
 
 type Tool =
   | 'point'
@@ -36,75 +33,9 @@ export class SketchService implements OnDestroy {
 
   textSymbol = new TextSymbol({ text: 'text' });
   simpleFillSymbol = new SimpleFillSymbol();
-  icon = new SimpleMarkerSymbol({
-    path: '/icons/agriculture-farm-farming.svg',
-    size: 24,
-  });
-
-  point = new CIMSymbol({
-    data: {
-      type: 'CIMSymbolReference',
-      symbol: {
-        type: 'CIMPointSymbol',
-        symbolLayers: [
-          {
-            type: 'CIMPictureMarker',
-            url: '/icons/agriculture-farm-farming.svg',
-            enable: true,
-            size: 24,
-          },
-          {
-            type: 'CIMVectorMarker',
-            enable: true,
-            size: 1,
-            colorLocked: true,
-            anchorPointUnits: 'Relative',
-            frame: {
-              xmin: -1,
-              ymin: -1,
-              xmax: 1,
-              ymax: 1,
-            },
-            markerGraphics: [
-              {
-                type: 'CIMMarkerGraphic',
-                geometry: {
-                  x: 0,
-                  y: -24,
-                },
-                symbol: {
-                  type: 'CIMTextSymbol',
-                  fontFamilyName: 'Arial',
-                  fontStyleName: 'Bold',
-                  height: 20,
-                  horizontalAlignment: 'Center',
-                  offsetX: 0,
-                  offsetY: 0,
-                  symbol: {
-                    type: 'CIMPolygonSymbol',
-                    symbolLayers: [
-                      {
-                        type: 'CIMSolidFill',
-                        enable: true,
-                        color: [89, 31, 147, 255],
-                      },
-                    ],
-                  },
-                  verticalAlignment: 'Center',
-                },
-                textString: 'hello!',
-              },
-            ],
-            scaleSymbolsProportionally: true,
-            respectFrame: true,
-          },
-        ],
-      },
-    },
-  });
 
   sketchModel = new SketchModel({
-    pointSymbol: this.point,
+    pointSymbol: CIMPoint,
     polygonSymbol: this.simpleFillSymbol,
     polylineSymbol: CIMLine,
     defaultCreateOptions: {
@@ -222,11 +153,7 @@ export class SketchService implements OnDestroy {
         this.sketchModel.create('point');
         break;
       case 'icon': {
-        // const pictureMarker = this.point.data.symbol?.symbolLayers?.find(
-        //   (layer) => layer.type === 'CIMPictureMarker'
-        // );
-        // if (!pictureMarker) return;
-        // pictureMarker.url = create.option.src;
+        this.sketchModel.pointSymbol = CIMPoint;
         this.sketchModel.create('point');
         break;
       }
@@ -380,6 +307,23 @@ export class SketchService implements OnDestroy {
         graphic.symbol.data.symbol?.type == 'CIMLineSymbol'
       )
         setLineSize(graphic.symbol, size);
+    this.forceUpdateGraphics();
+  }
+
+  // # point
+  set iconUrl(url: string) {
+    setPointIcon(CIMPoint, { url });
+  }
+
+  set iconText(text: string) {
+    setPointText(CIMPoint, { text });
+    for (const graphic of this.sketchModel.updateGraphics)
+      if (
+        graphic.symbol instanceof CIMSymbol &&
+        graphic.symbol.data.symbol?.type == 'CIMPointSymbol'
+      )
+        setPointText(graphic.symbol, { text });
+
     this.forceUpdateGraphics();
   }
 }

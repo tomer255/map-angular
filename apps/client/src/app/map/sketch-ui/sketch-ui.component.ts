@@ -81,6 +81,16 @@ export class SketchUiComponent {
     this.sketchService.lineSize = target.valueAsNumber;
   }
 
+  selectIcon(src: string) {
+    this.sketchService.iconUrl = src;
+    this.sketchService.create('icon');
+  }
+
+  selectIconText(event: Event) {
+    const target = event.target as HTMLInputElement;
+    this.sketchService.iconText = target.value;
+  }
+
   save() {
     const graphics = JSON.stringify(
       this.sketchService.sketchModel.layer.graphics

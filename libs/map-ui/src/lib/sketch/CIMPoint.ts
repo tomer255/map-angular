@@ -1,7 +1,7 @@
 import Color from '@arcgis/core/Color';
 import { CIMSymbol } from '@arcgis/core/symbols';
 
-export const changeText = (
+export const setPointText = (
   symbol: CIMSymbol,
   option: { text?: string; textColor?: Color }
 ) => {
@@ -25,7 +25,7 @@ export const changeText = (
   solidFill.color[2] = option.textColor.b;
 };
 
-export const changeIcon = (
+export const setPointIcon = (
   symbol: CIMSymbol,
   option: { url?: string | null }
 ) => {
@@ -34,6 +34,47 @@ export const changeIcon = (
   );
   if (!pictureMarker) return;
   if (option.url) pictureMarker.url = option.url;
+};
+
+const iconSize = 24;
+
+const textSymbol: __esri.CIMTextSymbol = {
+  type: 'CIMTextSymbol',
+  fontFamilyName: 'Arial',
+  height: 12,
+  verticalAlignment: 'Top',
+  horizontalAlignment: 'Center',
+  haloSize: 5,
+  symbol: {
+    type: 'CIMPolygonSymbol',
+    symbolLayers: [
+      {
+        type: 'CIMSolidFill',
+        enable: true,
+        color: [0, 0, 0, 255],
+      },
+    ],
+  },
+};
+
+const markerGraphic: __esri.CIMMarkerGraphic = {
+  type: 'CIMMarkerGraphic',
+  textString: 'Text',
+  geometry: { x: 0, y: -(iconSize / 2) },
+  symbol: textSymbol,
+};
+
+const vectorMarker: __esri.CIMVectorMarker = {
+  type: 'CIMVectorMarker',
+  enable: true,
+  size: iconSize,
+  markerGraphics: [markerGraphic],
+  frame: {
+    xmin: -(iconSize / 2),
+    ymin: -(iconSize / 2),
+    xmax: iconSize / 2,
+    ymax: iconSize / 2,
+  },
 };
 
 export const CIMPoint = new CIMSymbol({
@@ -46,53 +87,9 @@ export const CIMPoint = new CIMSymbol({
           type: 'CIMPictureMarker',
           url: '/icons/agriculture-farm-farming.svg',
           enable: true,
-          size: 24,
+          size: iconSize,
         },
-        {
-          type: 'CIMVectorMarker',
-          enable: true,
-          size: 1,
-          colorLocked: true,
-          anchorPointUnits: 'Relative',
-          frame: {
-            xmin: -1,
-            ymin: -1,
-            xmax: 1,
-            ymax: 1,
-          },
-          markerGraphics: [
-            {
-              type: 'CIMMarkerGraphic',
-              geometry: {
-                x: 0,
-                y: -24,
-              },
-              symbol: {
-                type: 'CIMTextSymbol',
-                fontFamilyName: 'Arial',
-                fontStyleName: 'Bold',
-                height: 20,
-                horizontalAlignment: 'Center',
-                offsetX: 0,
-                offsetY: 0,
-                symbol: {
-                  type: 'CIMPolygonSymbol',
-                  symbolLayers: [
-                    {
-                      type: 'CIMSolidFill',
-                      enable: true,
-                      color: [89, 31, 147, 255],
-                    },
-                  ],
-                },
-                verticalAlignment: 'Center',
-              },
-              textString: 'hello!',
-            },
-          ],
-          scaleSymbolsProportionally: true,
-          respectFrame: true,
-        },
+        vectorMarker,
       ],
     },
   },
