@@ -15,7 +15,6 @@ import { CIMSymbol, SimpleFillSymbol } from '@arcgis/core/symbols';
 import { CIMPoint, setPointIcon, setPointText } from './CIMPoint';
 
 type Tool =
-  | 'point'
   | 'text'
   | 'icon'
   | 'polyline'
@@ -138,7 +137,6 @@ export class SketchService implements OnDestroy {
     }
     this.activeTool.set(tool);
     switch (tool) {
-      case 'point':
       case 'circle':
       case 'polygon':
       case 'polyline':

@@ -4,12 +4,6 @@
   <h2>create</h2>
   <div class="buttons">
     <button
-      [class.active]="sketchService.activeTool() === 'point'"
-      (click)="sketchService.create('point')"
-    >
-      point
-    </button>
-    <button
       [class.active]="sketchService.activeTool() === 'circle'"
       (click)="sketchService.create('circle')"
     >
