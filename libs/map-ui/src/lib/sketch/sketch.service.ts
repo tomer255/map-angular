@@ -123,12 +123,20 @@ export class SketchService implements OnDestroy {
       }
     );
   }
+
   ngOnDestroy(): void {
     this.updateHandle.remove();
     this.createHandle.remove();
   }
 
   activeTool = signal<Tool | null>(null);
+
+  sandToBack() {
+    const graphic = this.sketchModel.updateGraphics.at(0);
+    this.sketchModel.layer.graphics.remove(graphic);
+    this.sketchModel.layer.graphics.unshift(graphic);
+    this.sketchModel.cancel();
+  }
 
   create(tool: Tool) {
     if (this.activeTool() == tool) {

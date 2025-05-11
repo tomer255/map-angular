@@ -1,33 +1,35 @@
 <div>
   <button (click)="save()">Save</button>
   <button (click)="laod()">Laod</button>
+  <br />
+  <button (click)="sketchService.sandToBack()">Sand To Back</button>
   <h2>create</h2>
-  <div class="buttons">
-    <button
-      [class.active]="sketchService.activeTool() === 'circle'"
-      (click)="sketchService.create('circle')"
-    >
-      circle
-    </button>
-
-    <button
-      [class.active]="sketchService.activeTool() === 'polygon'"
-      (click)="sketchService.create('polygon')"
-    >
-      polygon
-    </button>
-    <button
-      [class.active]="sketchService.activeTool() === 'rectangle'"
-      (click)="sketchService.create('rectangle')"
-    >
-      rectangle
-    </button>
-  </div>
   <hr />
   <details>
-    <summary>Fill</summary>
+    <summary>Polygon</summary>
+    <div class="buttons">
+      <button
+        [class.active]="sketchService.activeTool() === 'circle'"
+        (click)="sketchService.create('circle')"
+      >
+        circle
+      </button>
+
+      <button
+        [class.active]="sketchService.activeTool() === 'polygon'"
+        (click)="sketchService.create('polygon')"
+      >
+        polygon
+      </button>
+      <button
+        [class.active]="sketchService.activeTool() === 'rectangle'"
+        (click)="sketchService.create('rectangle')"
+      >
+        rectangle
+      </button>
+    </div>
     <label>
-      <span>Color: </span>
+      <span>Fill Color:</span>
       <input
         (change)="fillColorChange($event)"
         type="color"
@@ -36,7 +38,7 @@
     </label>
     <br />
     <label>
-      <span>Opacity: </span>
+      <span>Fill Opacity:</span>
       <input
         (change)="fillOpacityChange($event)"
         [value]="sketchService.fillOpacity"
@@ -46,20 +48,18 @@
         max="1"
       />
     </label>
-  </details>
-  <details>
-    <summary>Outline</summary>
+    <br />
     <label>
-      <span>Color: </span>
+      <span>Outline Color:</span>
       <input
         (change)="outlineColorChange($event)"
         type="color"
-        [value]="sketchService.outlineColor"
+        [value]="sketchService.outlineColor.toHex()"
       />
     </label>
     <br />
     <label>
-      <span>Opacity: </span>
+      <span>Outline Opacity:</span>
       <input
         (change)="outlineOpacityChange($event)"
         [value]="sketchService.outlineOpacity"
@@ -145,7 +145,7 @@
       <input
         (change)="lineColorChange($event)"
         type="color"
-        [value]="sketchService.outlineColor"
+        [value]="sketchService.outlineColor.toHex()"
       />
     </label>
     <br />
