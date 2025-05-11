@@ -4,17 +4,18 @@
   <h2>create</h2>
   <div class="buttons">
     <button
+      [class.active]="sketchService.activeTool() === 'point'"
+      (click)="sketchService.create('point')"
+    >
+      point
+    </button>
+    <button
       [class.active]="sketchService.activeTool() === 'circle'"
       (click)="sketchService.create('circle')"
     >
       circle
     </button>
-    <button
-      [class.active]="sketchService.activeTool() === 'polyline'"
-      (click)="sketchService.create('polyline')"
-    >
-      polyline
-    </button>
+
     <button
       [class.active]="sketchService.activeTool() === 'polygon'"
       (click)="sketchService.create('polygon')"
@@ -27,14 +28,7 @@
     >
       rectangle
     </button>
-    <button
-      [class.active]="sketchService.activeTool() === 'freehand'"
-      (click)="sketchService.create('freehand')"
-    >
-      freehand
-    </button>
   </div>
-
   <hr />
   <details>
     <summary>Fill</summary>
@@ -43,7 +37,7 @@
       <input
         (change)="fillColorChange($event)"
         type="color"
-        [value]="sketchService.fillColorHex"
+        [value]="sketchService.fillColor.toHex()"
       />
     </label>
     <br />
@@ -66,7 +60,7 @@
       <input
         (change)="outlineColorChange($event)"
         type="color"
-        [value]="sketchService.outlineColorHex"
+        [value]="sketchService.outlineColor"
       />
     </label>
     <br />
@@ -120,11 +114,60 @@
       <input
         (change)="textColorChange($event)"
         type="color"
-        [value]="sketchService.fillColor"
+        [value]="sketchService.textColor.toHex()"
       />
     </label>
   </details>
   <details>
     <summary>Line</summary>
+    <div class="buttons">
+      <button
+        [class.active]="sketchService.activeTool() === 'polyline'"
+        (click)="sketchService.create('polyline')"
+      >
+        polyline
+      </button>
+      <button
+        [class.active]="sketchService.activeTool() === 'freehand'"
+        (click)="sketchService.create('freehand')"
+      >
+        freehand
+      </button>
+    </div>
+    <hr />
+    <div>
+      @for (type of stroke.type; track $index) {
+      <div>
+        @for (dualiy of stroke.dualiy; track $index) {
+        <button (click)="sketchService.lineStroke = {type,dualiy}">
+          {{ type }}-{{ dualiy }}
+        </button>
+        }
+      </div>
+      }
+    </div>
+    <label>
+      <span>Color: </span>
+      <input
+        (change)="lineColorChange($event)"
+        type="color"
+        [value]="sketchService.outlineColor"
+      />
+    </label>
+    <hr />
+    <label>
+      <span>Size: </span>
+      <input (change)="lienSizeChange($event)" type="number" />
+    </label>
+  </details>
+  <details>
+    <summary>Icons</summary>
+    <div class="icon-grid">
+      @for (src of icons; track $index) {
+      <button class="create-icon" (click)="sketchService.create('icon')">
+        <img [src]="src" />
+      </button>
+      }
+    </div>
   </details>
 </div>

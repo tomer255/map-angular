@@ -3,6 +3,12 @@ import { CommonModule } from '@angular/common';
 import { SketchService } from '@map-angular/map-ui';
 import Graphic from '@arcgis/core/Graphic';
 import Collection from '@arcgis/core/core/Collection.js';
+import Color from '@arcgis/core/Color';
+
+type StrokeOption = {
+  dualiy: 'single' | 'double';
+  type: 'solid' | 'dashes' | 'dotted';
+};
 
 @Component({
   selector: 'app-sketch-ui',
@@ -18,7 +24,7 @@ export class SketchUiComponent {
   fillColorChange(event: Event) {
     const target = event.target as HTMLInputElement;
     const hex = target.value;
-    this.sketchService.fillColorHex = hex;
+    this.sketchService.fillColor = new Color(hex);
   }
 
   fillOpacityChange(event: Event) {
@@ -30,7 +36,8 @@ export class SketchUiComponent {
   outlineColorChange(event: Event) {
     const target = event.target as HTMLInputElement;
     const hex = target.value;
-    this.sketchService.outlineColorHex = hex;
+    const color = new Color(hex);
+    this.sketchService.outlineColor = color;
   }
 
   outlineOpacityChange(event: Event) {
@@ -56,7 +63,22 @@ export class SketchUiComponent {
 
   textColorChange(event: Event) {
     const target = event.target as HTMLInputElement;
-    this.sketchService.TextColorHex = target.value;
+    this.sketchService.textColor = new Color(target.value);
+  }
+
+  stroke: { dualiy: StrokeOption['dualiy'][]; type: StrokeOption['type'][] } = {
+    dualiy: ['single', 'double'],
+    type: ['solid', 'dashes', 'dotted'],
+  };
+
+  lineColorChange(event: Event) {
+    const target = event.target as HTMLInputElement;
+    this.sketchService.lineColor = new Color(target.value);
+  }
+
+  lienSizeChange(event: Event) {
+    const target = event.target as HTMLInputElement;
+    this.sketchService.lineSize = target.valueAsNumber;
   }
 
   save() {
@@ -77,4 +99,19 @@ export class SketchUiComponent {
       graphics.map((data) => Graphic.fromJSON(data))
     );
   }
+
+  icons = [
+    '/icons/agriculture-farm-farming.svg',
+    '/icons/aircraft-automobile-flight.svg',
+    '/icons/aircraft-helicopter-tourism.svg',
+    '/icons/airplane-flight-tourism.svg',
+    '/icons/army-boat-military.svg',
+    '/icons/army-military-soldier.svg',
+    '/icons/auto-bicycle-bike.svg',
+    '/icons/auto-car-transport.svg',
+    '/icons/automobile-car-transport.svg',
+    '/icons/boat-luxury-sea.svg',
+    '/icons/car-delivery-package.svg',
+    '/icons/car-delivery-transport.svg',
+  ];
 }

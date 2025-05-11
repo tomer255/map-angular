@@ -4,11 +4,23 @@ import LineSymbol from '@arcgis/core/symbols/LineSymbol';
 import SketchModel from '@arcgis/core/widgets/Sketch/SketchViewModel';
 import Color from '@arcgis/core/Color';
 import TextSymbol from '@arcgis/core/symbols/TextSymbol';
-// import { arrow } from './arrows';
-// import { CIMSymbol } from '@arcgis/core/symbols';
+import {
+  CIMLine,
+  setLineColor,
+  setLineSize,
+  setLineStroke,
+  StrokeOption,
+} from './CIMLine';
+import {
+  CIMSymbol,
+  SimpleFillSymbol,
+  SimpleMarkerSymbol,
+} from '@arcgis/core/symbols';
 
 type Tool =
+  | 'point'
   | 'text'
+  | 'icon'
   | 'polyline'
   | 'polygon'
   | 'rectangle'
@@ -21,17 +33,86 @@ type Tool =
 export class SketchService implements OnDestroy {
   updateHandle: IHandle;
   createHandle: IHandle;
+
+  textSymbol = new TextSymbol({ text: 'text' });
+  simpleFillSymbol = new SimpleFillSymbol();
+  icon = new SimpleMarkerSymbol({
+    path: '/icons/agriculture-farm-farming.svg',
+    size: 24,
+  });
+
+  point = new CIMSymbol({
+    data: {
+      type: 'CIMSymbolReference',
+      symbol: {
+        type: 'CIMPointSymbol',
+        symbolLayers: [
+          {
+            type: 'CIMPictureMarker',
+            url: '/icons/agriculture-farm-farming.svg',
+            enable: true,
+            size: 24,
+          },
+          {
+            type: 'CIMVectorMarker',
+            enable: true,
+            size: 1,
+            colorLocked: true,
+            anchorPointUnits: 'Relative',
+            frame: {
+              xmin: -1,
+              ymin: -1,
+              xmax: 1,
+              ymax: 1,
+            },
+            markerGraphics: [
+              {
+                type: 'CIMMarkerGraphic',
+                geometry: {
+                  x: 0,
+                  y: -24,
+                },
+                symbol: {
+                  type: 'CIMTextSymbol',
+                  fontFamilyName: 'Arial',
+                  fontStyleName: 'Bold',
+                  height: 20,
+                  horizontalAlignment: 'Center',
+                  offsetX: 0,
+                  offsetY: 0,
+                  symbol: {
+                    type: 'CIMPolygonSymbol',
+                    symbolLayers: [
+                      {
+                        type: 'CIMSolidFill',
+                        enable: true,
+                        color: [89, 31, 147, 255],
+                      },
+                    ],
+                  },
+                  verticalAlignment: 'Center',
+                },
+                textString: 'hello!',
+              },
+            ],
+            scaleSymbolsProportionally: true,
+            respectFrame: true,
+          },
+        ],
+      },
+    },
+  });
+
   sketchModel = new SketchModel({
-    pointSymbol: { type: 'text', text: 'text' },
-    polygonSymbol: { type: 'simple-fill' },
-    // polylineSymbol: arrow,
-    polylineSymbol: { type: 'simple-line' },
+    pointSymbol: this.point,
+    polygonSymbol: this.simpleFillSymbol,
+    polylineSymbol: CIMLine,
     defaultCreateOptions: {
       mode: 'hybrid',
       preserveAspectRatio: false,
     },
     defaultUpdateOptions: {
-      // toggleToolOnClick: false,
+      toggleToolOnClick: true,
       tool: 'transform',
       multipleSelectionEnabled: false,
     },
@@ -58,30 +139,14 @@ export class SketchService implements OnDestroy {
     start: (event) => {
       const graphic = event.graphics[0];
       if (graphic.symbol instanceof FillSymbol) {
-        for (const symbol of this.newOutlines) {
-          symbol.width = graphic.symbol.outline.width;
-          symbol.color = graphic.symbol.outline.color;
-        }
-        for (const symbol of this.newFills) {
-          symbol.color = graphic.symbol.color;
-        }
-      }
-
-      if (graphic.symbol instanceof LineSymbol) {
-        for (const symbol of this.newOutlines) {
-          symbol.width = graphic.symbol.width;
-          symbol.color = graphic.symbol.color;
-        }
-        for (const symbol of this.newFills) {
-          symbol.outline.color = graphic.symbol.color;
-        }
+        this.simpleFillSymbol.outline.width = graphic.symbol.outline.width;
+        this.simpleFillSymbol.outline.color = graphic.symbol.outline.color;
+        this.simpleFillSymbol.color = graphic.symbol.color;
       }
 
       if (graphic.symbol instanceof TextSymbol) {
-        if (this.sketchModel.pointSymbol instanceof TextSymbol) {
-          this.sketchModel.pointSymbol.text = graphic.symbol.text;
-          this.sketchModel.pointSymbol.font.size = graphic.symbol.font.size;
-        }
+        this.textSymbol.text = graphic.symbol.text;
+        this.textSymbol.font.size = graphic.symbol.font.size;
       }
     },
     active: () => {
@@ -142,6 +207,7 @@ export class SketchService implements OnDestroy {
     }
     this.activeTool.set(tool);
     switch (tool) {
+      case 'point':
       case 'circle':
       case 'polygon':
       case 'polyline':
@@ -152,89 +218,56 @@ export class SketchService implements OnDestroy {
         this.sketchModel.create('polyline', { mode: 'freehand' });
         break;
       case 'text':
+        this.sketchModel.pointSymbol = this.textSymbol;
         this.sketchModel.create('point');
         break;
-
+      case 'icon': {
+        // const pictureMarker = this.point.data.symbol?.symbolLayers?.find(
+        //   (layer) => layer.type === 'CIMPictureMarker'
+        // );
+        // if (!pictureMarker) return;
+        // pictureMarker.url = create.option.src;
+        this.sketchModel.create('point');
+        break;
+      }
       default:
         break;
     }
   }
 
-  private get newOutlines() {
-    const result: LineSymbol[] = [];
-    if (this.sketchModel.polygonSymbol instanceof FillSymbol) {
-      result.push(this.sketchModel.polygonSymbol.outline);
-    }
-    if (this.sketchModel.polylineSymbol instanceof LineSymbol)
-      result.push(this.sketchModel.polylineSymbol);
-    return result;
-  }
-
   private get outlines() {
-    const result: LineSymbol[] = this.newOutlines;
+    const result: LineSymbol[] = [this.simpleFillSymbol.outline];
 
     this.sketchModel.updateGraphics.forEach((graphic) => {
-      if (graphic.symbol instanceof FillSymbol) {
+      if (graphic.symbol instanceof FillSymbol)
         result.push(graphic.symbol.outline);
-      }
-      if (graphic.symbol instanceof LineSymbol) {
-        result.push(graphic.symbol);
-      }
     });
     return result;
   }
 
-  private get newFills() {
-    const result: FillSymbol[] = [];
-    if (this.sketchModel.polygonSymbol instanceof FillSymbol)
-      result.push(this.sketchModel.polygonSymbol);
-    return result;
-  }
-
   private get fills() {
-    const result: FillSymbol[] = this.newFills;
+    const result: FillSymbol[] = [this.simpleFillSymbol];
     for (const graphic of this.sketchModel.updateGraphics)
       if (graphic.symbol instanceof FillSymbol) result.push(graphic.symbol);
 
     return result;
   }
 
-  get fillColorHex() {
-    return this.sketchModel.polygonSymbol.color.toHex();
-  }
-
-  set fillColorHex(hex: string) {
-    const { r, g, b } = new Color(hex);
-    this.fillColor = { r, g, b };
-  }
-
-  get outlineColorHex() {
-    if (this.sketchModel.polygonSymbol instanceof FillSymbol) {
-      return this.sketchModel.polygonSymbol.outline.color.toHex();
-    }
-    return '#000000';
-  }
-
-  set outlineColorHex(hex: string) {
-    const { r, g, b } = new Color(hex);
-    this.outlineColor = { r, g, b };
-  }
-
   get fillColor() {
     return this.sketchModel.polygonSymbol.color;
   }
 
-  set fillColor({ r, g, b }: { r: number; g: number; b: number }) {
+  set fillColor(color: Color) {
     this.fills.forEach((symbol) => {
-      symbol.color.r = r;
-      symbol.color.g = g;
-      symbol.color.b = b;
+      symbol.color.r = color.r;
+      symbol.color.g = color.g;
+      symbol.color.b = color.b;
     });
     this.forceUpdateGraphics();
   }
 
   get fillOpacity() {
-    return this.sketchModel.polygonSymbol.color.a;
+    return this.simpleFillSymbol.color.a;
   }
 
   set fillOpacity(opacity: number) {
@@ -245,17 +278,14 @@ export class SketchService implements OnDestroy {
   }
 
   get outlineColor() {
-    if (this.sketchModel.polygonSymbol instanceof FillSymbol) {
-      return this.sketchModel.polygonSymbol.outline.color;
-    }
-    return new Color('#000000');
+    return this.simpleFillSymbol.outline.color;
   }
 
-  set outlineColor({ r, g, b }: { r: number; g: number; b: number }) {
+  set outlineColor(color: Color) {
     this.outlines.forEach((symbol) => {
-      symbol.color.r = r;
-      symbol.color.g = g;
-      symbol.color.b = b;
+      symbol.color.r = color.r;
+      symbol.color.g = color.g;
+      symbol.color.b = color.b;
     });
     this.forceUpdateGraphics();
   }
@@ -279,64 +309,77 @@ export class SketchService implements OnDestroy {
   }
 
   get width() {
-    if (this.sketchModel.polylineSymbol instanceof LineSymbol)
-      return this.sketchModel.polylineSymbol.width;
-    if (this.sketchModel.polygonSymbol instanceof FillSymbol)
-      return this.sketchModel.polygonSymbol.outline.width;
-    return 0.7;
+    return this.simpleFillSymbol.outline.width;
   }
 
-  private get texts() {
-    const result: TextSymbol[] = [];
-    for (const graphic of this.sketchModel.updateGraphics)
-      if (graphic.symbol instanceof TextSymbol) result.push(graphic.symbol);
-    return result;
-  }
+  /// # Text
 
   get text() {
-    if (this.sketchModel.pointSymbol instanceof TextSymbol)
-      return this.sketchModel.pointSymbol.text;
-    return 'text';
+    return this.textSymbol.text;
   }
 
   set text(text: string) {
-    if (this.sketchModel.pointSymbol instanceof TextSymbol)
-      this.sketchModel.pointSymbol.text = text;
-    for (const textSymbol of this.texts) {
-      textSymbol.text = text;
-    }
+    this.textSymbol.text = text;
+    for (const graphic of this.sketchModel.updateGraphics)
+      if (graphic.symbol instanceof TextSymbol) graphic.symbol.text = text;
     this.forceUpdateGraphics();
   }
 
   set fontSize(fontSize: number) {
-    if (this.sketchModel.pointSymbol instanceof TextSymbol)
-      this.sketchModel.pointSymbol.font.size = fontSize;
-    for (const textSymbol of this.texts) {
-      textSymbol.font.size = fontSize;
-    }
+    this.textSymbol.font.size = fontSize;
+    for (const graphic of this.sketchModel.updateGraphics)
+      if (graphic.symbol instanceof TextSymbol)
+        graphic.symbol.font.size = fontSize;
     this.forceUpdateGraphics();
   }
 
   get fontSize() {
-    if (this.sketchModel.pointSymbol instanceof TextSymbol)
-      return this.sketchModel.pointSymbol.font.size;
-    return 12;
+    return this.textSymbol.font.size;
   }
 
-  get TextColorHex() {
-    return this.sketchModel.pointSymbol.color.toHex();
+  get textColor() {
+    return this.textSymbol.color;
   }
 
-  set TextColorHex(hex: string) {
-    this.TextColor = new Color(hex);
+  set textColor(color: Color) {
+    this.textSymbol.color = color;
+    for (const graphic of this.sketchModel.updateGraphics)
+      if (graphic.symbol instanceof TextSymbol) graphic.symbol.color = color;
+    this.forceUpdateGraphics();
   }
 
-  set TextColor({ r, g, b }: { r: number; g: number; b: number }) {
-    if (this.sketchModel.pointSymbol instanceof TextSymbol)
-      this.sketchModel.pointSymbol.color = new Color({ r, g, b });
-    for (const textSymbol of this.texts) {
-      textSymbol.color = new Color({ r, g, b });
-    }
+  /// # line
+
+  set lineColor(color: Color) {
+    setLineColor(CIMLine, color);
+    for (const graphic of this.sketchModel.updateGraphics)
+      if (
+        graphic.symbol instanceof CIMSymbol &&
+        graphic.symbol.data.symbol?.type == 'CIMLineSymbol'
+      )
+        setLineColor(graphic.symbol, color);
+    this.forceUpdateGraphics();
+  }
+
+  set lineStroke(strokeOption: StrokeOption) {
+    setLineStroke(CIMLine, strokeOption);
+    for (const graphic of this.sketchModel.updateGraphics)
+      if (
+        graphic.symbol instanceof CIMSymbol &&
+        graphic.symbol.data.symbol?.type == 'CIMLineSymbol'
+      )
+        setLineStroke(graphic.symbol, strokeOption);
+    this.forceUpdateGraphics();
+  }
+
+  set lineSize(size: number) {
+    setLineSize(CIMLine, size);
+    for (const graphic of this.sketchModel.updateGraphics)
+      if (
+        graphic.symbol instanceof CIMSymbol &&
+        graphic.symbol.data.symbol?.type == 'CIMLineSymbol'
+      )
+        setLineSize(graphic.symbol, size);
     this.forceUpdateGraphics();
   }
 }
