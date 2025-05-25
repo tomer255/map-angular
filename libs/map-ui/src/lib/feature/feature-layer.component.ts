@@ -28,10 +28,12 @@ export class FeatureLayerComponent implements OnDestroy, OnChanges {
   mapService = inject(MapService);
 
   features: {
+    changes: boolean;
     addFeatures: Graphic[];
     updateFeatures: Graphic[];
     deleteFeatures: Graphic[];
   } = {
+    changes: false,
     addFeatures: [],
     updateFeatures: [],
     deleteFeatures: [],
@@ -40,8 +42,10 @@ export class FeatureLayerComponent implements OnDestroy, OnChanges {
   constructor() {
     this.mapService.map.add(this.layer);
     this.timerId = setInterval(() => {
+      if (!this.features.changes) return;
       this.layer.applyEdits(this.features);
       this.features = {
+        changes: false,
         addFeatures: [],
         updateFeatures: [],
         deleteFeatures: [],

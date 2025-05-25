@@ -13,6 +13,7 @@ import {
   fillYellowSymbol,
   Force,
   SketchComponent,
+  FeatureLayerComponent,
 } from '@map-angular/map-ui';
 import Point from '@arcgis/core/geometry/Point';
 import Extent from '@arcgis/core/geometry/Extent.js';
@@ -39,6 +40,7 @@ type BaseLayer = {
     GraphicsLayerComponent,
     SketchComponent,
     SketchUiComponent,
+    FeatureLayerComponent,
   ],
   templateUrl: './map.component.html',
   styleUrl: './map.component.scss',
@@ -56,6 +58,8 @@ export class AppMapComponent {
     (window as any).myTest = this.myTest;
     projection.load();
   }
+
+  arr = Array.from({ length: 50 });
 
   pinLoc = signal<{ x: number; y: number } | undefined>(undefined);
   viewClick(event: __esri.ViewClickEvent) {

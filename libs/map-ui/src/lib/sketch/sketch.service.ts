@@ -139,10 +139,8 @@ export class SketchService implements OnDestroy {
   }
 
   create(tool: Tool) {
-    if (this.activeTool() == tool) {
-      this.sketchModel.cancel();
-      return;
-    }
+    if (this.activeTool() == tool) return this.sketchModel.cancel();
+
     this.activeTool.set(tool);
     switch (tool) {
       case 'circle':
@@ -158,11 +156,10 @@ export class SketchService implements OnDestroy {
         this.sketchModel.pointSymbol = this.textSymbol;
         this.sketchModel.create('point');
         break;
-      case 'icon': {
+      case 'icon':
         this.sketchModel.pointSymbol = CIMPoint;
         this.sketchModel.create('point');
         break;
-      }
       default:
         break;
     }
@@ -170,11 +167,9 @@ export class SketchService implements OnDestroy {
 
   private get outlines() {
     const result: LineSymbol[] = [this.simpleFillSymbol.outline];
-
-    this.sketchModel.updateGraphics.forEach((graphic) => {
+    for (const graphic of this.sketchModel.updateGraphics)
       if (graphic.symbol instanceof FillSymbol)
         result.push(graphic.symbol.outline);
-    });
     return result;
   }
 
@@ -182,7 +177,6 @@ export class SketchService implements OnDestroy {
     const result: FillSymbol[] = [this.simpleFillSymbol];
     for (const graphic of this.sketchModel.updateGraphics)
       if (graphic.symbol instanceof FillSymbol) result.push(graphic.symbol);
-
     return result;
   }
 
